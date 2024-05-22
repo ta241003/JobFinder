@@ -48,7 +48,7 @@ const DescribeJob = ({ navigation, route }) => {
 				>
 					{company.job}
 				</Text>
-				<Text style={{ marginBottom: 3 }}>{company.description}</Text>
+				<Text style={{ marginBottom: 3 }}>{company.location}</Text>
 				<Text>{company.name}</Text>
 			</View>
 			<View
@@ -119,7 +119,7 @@ const DescribeJob = ({ navigation, route }) => {
 						selectedTab === "Description" && styles.contentVisible,
 					]}
 				>
-					<Text>Description</Text>
+					<Text>{company.description}</Text>
 				</View>
 			)}
 

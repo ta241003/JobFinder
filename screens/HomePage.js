@@ -21,21 +21,24 @@ const popularjob = [
 		name: "Google",
 		logo: require("../assets/google.png"),
 		job: "React-native Developer",
-		description: "$8k - Hai Chau, Da Nang",
+        location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 2,
 		name: "Facebook",
 		logo: require("../assets/facebook.png"),
 		job: "Load Product Manager",
-		description: "$8k - Hai Chau, Da Nang",
+		location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 3,
 		name: "Google",
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
-		description: "$8k - Hai Chau, Da Nang",
+		location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	// Add more company here...
 ];
@@ -43,24 +46,27 @@ const popularjob = [
 const nearbyjob = [
 	{
 		id: 1,
-		name: "Instagram",
-		logo: require("../assets/ig.png"),
+		name: "Google",
+		logo: require("../assets/google.png"),
 		job: "React-native Developer",
-		description: "$8k - Hai Chau, Da Nang",
+        location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 2,
 		name: "Facebook",
 		logo: require("../assets/facebook.png"),
 		job: "Load Product Manager",
-		description: "$8k - Hai Chau, Da Nang",
+		location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 3,
 		name: "Google",
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
-		description: "$8k - Hai Chau, Da Nang",
+		location: "Hai Chau, Da Nang",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	// Add more company here...
 ];
@@ -74,7 +80,7 @@ const Nearby_Job = ({ company, onPress }) => {
 			<View style={styles.textContainer}>
 				<Text style={styles.company}>{company.name}</Text>
 				<Text style={styles.jobname}>{company.job}</Text>
-				<Text style={styles.describe}>{company.description}</Text>
+				<Text style={styles.location}>{company.location}</Text>
 			</View>
 		</TouchableOpacity>
 	);
@@ -91,7 +97,7 @@ const Popular_Job = ({ item, onPress }) => {
 					<Text style={styles.companyName}>{item.name}</Text>
 					<Text style={styles.jobName}>{item.job}</Text>
 					<Text style={styles.jobDescription}>
-						{item.description}
+						{item.location}
 					</Text>
 				</View>
 			</View>
@@ -223,7 +229,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 			<View style={styles.row}>
 				<View style={styles.subrow}>
 					<Text style={styles.boldText}>Popular Jobs</Text>
-					<Text style={styles.showAll}>Show all</Text>
+					<TouchableOpacity><Text style={styles.showAll} onPress={() => navigation.navigate("ShowAllPopularJob")}>Show all</Text></TouchableOpacity>
 				</View>
 
 				<View>
@@ -252,7 +258,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 
 				<View style={styles.subrow}>
 					<Text style={styles.boldText}>Nearby Jobs</Text>
-					<Text style={styles.showAll}>Show all</Text>
+					<TouchableOpacity><Text style={styles.showAll} onPress={() => navigation.navigate("ShowAllNearbyJob")}>Show all</Text></TouchableOpacity>
 				</View>
 				<View>
 					{nearbyjob.map((company) => (

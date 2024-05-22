@@ -90,7 +90,7 @@ const ChangeExperience = () => {
                 </View>
                 
                 <View style={{ backgroundColor: COLORS.maugach, width: 100, padding: 10, margin: 20, marginTop: 10, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{color:COLORS.white, fontSize:18}}>Add</Text>
+                    <Text style={{color:COLORS.white, fontSize:18}}>Save</Text>
                 </View>
             </View>
         </SafeAreaView>

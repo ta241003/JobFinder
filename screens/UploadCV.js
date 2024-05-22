@@ -114,10 +114,9 @@ const UploadCV = ({ navigation, route }) => {
 							{company.job}
 						</Text>
 						<Text style={{ marginBottom: 3 }}>
-							{company.description}
+							{company.location}
 						</Text>
 						<Text>{company.name}</Text>
-						<Text>lethibinhminh</Text>
 					</View>
 				</View>
 				<View style={{ marginLeft: 30, marginTop: 40 }}>

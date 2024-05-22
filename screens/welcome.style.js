@@ -190,7 +190,12 @@ const styles = StyleSheet.create({
 		fontWeight: "bold",
 		marginBottom: 2,
 	},
+	location: {
+		fontSize: 15,
+		color: "#555555",
+	},
 	describe: {
+		marginTop:10,
 		fontSize: 15,
 		color: "#555555",
 	},

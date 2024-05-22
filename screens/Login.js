@@ -6,6 +6,9 @@ import {
 	TextInput,
 	TouchableOpacity,
 	Alert,
+	KeyboardAvoidingView,
+	ScrollView,
+	Platform
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -101,249 +104,256 @@ const Login = ({ navigation }) => {
 	};
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
-			<View style={{ flex: 1, marginHorizontal: 22 }}>
-				<View style={{ marginTop: 10, alignItems: "center" }}>
-					<Text
-						style={{
-							fontSize: 30,
-							fontWeight: "bold",
-							color: COLORS.black,
-						}}
-					>
-						Sign In 👋
-					</Text>
+		<SafeAreaView style={{ flex: 1, backgroundColor: "#fafafa" }}>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				style={{ flex: 1 }}
+			>
+				<ScrollView>
+					<View style={{ flex: 1, marginHorizontal: 22 }}>
+						<View style={{ marginTop: 10, alignItems: "center" }}>
+							<Text
+								style={{
+									fontSize: 30,
+									fontWeight: "bold",
+									color: COLORS.black,
+								}}
+							>
+								Sign In 👋
+							</Text>
 
-					<Text
-						style={{
-							fontSize: 16,
-							color: COLORS.black,
-						}}
-					>
-						Hello again, you have been missed!
-					</Text>
-				</View>
+							<Text
+								style={{
+									fontSize: 16,
+									color: COLORS.black,
+								}}
+							>
+								Hello again, you have been missed!
+							</Text>
+						</View>
 
-				<View
-					style={{ justifyContent: "center", alignItems: "center" }}
-				>
-					<Image
-						source={require("../assets/hero1.png")}
-						style={{
-							height: 300,
-							width: 300,
-							borderRadius: 20,
-						}}
-					/>
-				</View>
-
-				<View style={{ marginBottom: 18 }}>
-					<View
-						style={{
-							flexDirection: "row",
-							justifyContent: "flex-end",
-							marginEnd: 10,
-							marginBottom: 10,
-						}}
-					>
-						<Text style={{ color: "#83829A" }}>
-							Don’t have an account?{" "}
-						</Text>
-						<Pressable
-							onPress={() => navigation.navigate("Signup")}
+						<View
+							style={{ justifyContent: "center", alignItems: "center" }}
 						>
-							<Text style={{ color: "#FF7754" }}>Sign up</Text>
-						</Pressable>
-					</View>
+							<Image
+								source={require("../assets/hero1.png")}
+								style={{
+									height: 300,
+									width: 300,
+									borderRadius: 20,
+								}}
+							/>
+						</View>
 
-					<View
-						style={{
-							width: "100%",
-							height: 54,
-							backgroundColor: "#E6E4E6",
-							borderRadius: 8,
-							alignItems: "center",
-							justifyContent: "center",
-							paddingLeft: 22,
-						}}
-					>
-						<TextInput
-							onChangeText={handleEmailChange}
-							placeholder="Your email address"
-							placeholderTextColor={COLORS.textcolor}
-							keyboardType="email-address"
-							style={{
-								width: "100%",
-								fontSize: 19,
-							}}
-							value={email}
-						/>
-					</View>
-				</View>
+						<View style={{ marginBottom: 18 }}>
+							<View
+								style={{
+									flexDirection: "row",
+									justifyContent: "flex-end",
+									marginEnd: 10,
+									marginBottom: 10,
+								}}
+							>
+								<Text style={{ color: "#83829A" }}>
+									Don’t have an account?{" "}
+								</Text>
+								<Pressable
+									onPress={() => navigation.navigate("Signup")}
+								>
+									<Text style={{ color: "#FF7754" }}>Sign up</Text>
+								</Pressable>
+							</View>
 
-				<View style={{ marginBottom: 10 }}>
-					<View
-						style={{
-							width: "100%",
-							height: 54,
-							backgroundColor: "#E6E4E6",
-							borderRadius: 8,
-							alignItems: "center",
-							justifyContent: "center",
-							paddingLeft: 22,
-						}}
-					>
-						<TextInput
-							onChangeText={handlePasswordChange}
-							placeholder="Your password"
-							placeholderTextColor={COLORS.textcolor}
-							secureTextEntry={isPasswordShown}
-							style={{
-								width: "100%",
-								fontSize: 19,
-							}}
-							value={password}
-						/>
+							<View
+								style={{
+									width: "100%",
+									height: 54,
+									backgroundColor: "#E6E4E6",
+									borderRadius: 8,
+									alignItems: "center",
+									justifyContent: "center",
+									paddingLeft: 22,
+								}}
+							>
+								<TextInput
+									onChangeText={handleEmailChange}
+									placeholder="Your email address"
+									placeholderTextColor={COLORS.textcolor}
+									keyboardType="email-address"
+									style={{
+										width: "100%",
+										fontSize: 19,
+									}}
+									value={email}
+								/>
+							</View>
+						</View>
 
-						<TouchableOpacity
-							onPress={() => setIsPasswordShown(!isPasswordShown)}
+						<View style={{ paddingBottom: 10 }}>
+							<View
+								style={{
+									width: "100%",
+									height: 54,
+									backgroundColor: "#E6E4E6",
+									borderRadius: 8,
+									alignItems: "center",
+									justifyContent: "center",
+									paddingLeft: 22,
+								}}
+							>
+								<TextInput
+									onChangeText={handlePasswordChange}
+									placeholder="Your password"
+									placeholderTextColor={COLORS.textcolor}
+									secureTextEntry={isPasswordShown}
+									style={{
+										width: "100%",
+										fontSize: 19,
+									}}
+									value={password}
+								/>
+
+								<TouchableOpacity
+									onPress={() => setIsPasswordShown(!isPasswordShown)}
+									style={{
+										position: "absolute",
+										right: 12,
+									}}
+								>
+									{isPasswordShown == false ? (
+										<Ionicons
+											name="eye-off"
+											size={24}
+											color={COLORS.grey}
+										/>
+									) : (
+										<Ionicons
+											name="eye"
+											size={24}
+											color={COLORS.grey}
+										/>
+									)}
+								</TouchableOpacity>
+							</View>
+						</View>
+
+						<View
 							style={{
-								position: "absolute",
-								right: 12,
+								flexDirection: "row",
+								marginLeft: 10,
+								marginBottom: 10,
 							}}
 						>
-							{isPasswordShown == false ? (
-								<Ionicons
-									name="eye-off"
-									size={24}
-									color={COLORS.grey}
-								/>
-							) : (
-								<Ionicons
-									name="eye"
-									size={24}
-									color={COLORS.grey}
-								/>
-							)}
-						</TouchableOpacity>
-					</View>
-				</View>
+							<Pressable
+								onPress={() => navigation.navigate("ConfirmEmail")}
+							>
+								<Text style={{ color: "#FF7754" }}>
+									Forgot Password?
+								</Text>
+							</Pressable>
+						</View>
 
-				<View
-					style={{
-						flexDirection: "row",
-						marginLeft: 10,
-						marginBottom: 10,
-					}}
-				>
-					<Pressable
-						onPress={() => navigation.navigate("ConfirmEmail")}
-					>
-						<Text style={{ color: "#FF7754" }}>
-							Forgot Password?
-						</Text>
-					</Pressable>
-				</View>
-
-				<Button
-					onPress={handleLogin}
-					title="Login"
-					filled
-					style={{
-						backgroundColor: COLORS.maugach,
-						borderColor: "transparent",
-						marginTop: 10,
-						marginBottom: 4,
-					}}
-				/>
-
-				<View
-					style={{
-						flexDirection: "row",
-						alignItems: "center",
-						marginVertical: 15,
-					}}
-				>
-					<View
-						style={{
-							flex: 1,
-							height: 1,
-							backgroundColor: COLORS.grey,
-							marginHorizontal: 10,
-						}}
-					/>
-					<Text style={{ fontSize: 14 }}>Or Login with</Text>
-					<View
-						style={{
-							flex: 1,
-							height: 1,
-							backgroundColor: COLORS.grey,
-							marginHorizontal: 10,
-						}}
-					/>
-				</View>
-
-				<View
-					style={{
-						flexDirection: "row",
-						justifyContent: "center",
-					}}
-				>
-					<TouchableOpacity
-						onPress={() => console.log("Pressed")}
-						style={{
-							flex: 1,
-							alignItems: "center",
-							justifyContent: "center",
-							flexDirection: "row",
-							height: 52,
-							borderWidth: 1,
-							borderColor: COLORS.grey,
-							marginRight: 4,
-							borderRadius: 10,
-						}}
-					>
-						<Image
-							source={require("../assets/facebook.png")}
+						<Button
+							onPress={handleLogin}
+							title="Login"
+							filled
 							style={{
-								height: 36,
-								width: 36,
-								marginRight: 8,
+								backgroundColor: COLORS.maugach,
+								borderColor: "transparent",
+								marginTop: 10,
+								marginBottom: 4,
 							}}
-							resizeMode="contain"
 						/>
 
-						<Text>Facebook</Text>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						onPress={() => console.log("Pressed")}
-						style={{
-							flex: 1,
-							alignItems: "center",
-							justifyContent: "center",
-							flexDirection: "row",
-							height: 52,
-							borderWidth: 1,
-							borderColor: COLORS.grey,
-							marginRight: 4,
-							borderRadius: 10,
-						}}
-					>
-						<Image
-							source={require("../assets/google.png")}
+						<View
 							style={{
-								height: 36,
-								width: 36,
-								marginRight: 8,
+								flexDirection: "row",
+								alignItems: "center",
+								marginVertical: 15,
 							}}
-							resizeMode="contain"
-						/>
+						>
+							<View
+								style={{
+									flex: 1,
+									height: 1,
+									backgroundColor: COLORS.grey,
+									marginHorizontal: 10,
+								}}
+							/>
+							<Text style={{ fontSize: 14 }}>Or Login with</Text>
+							<View
+								style={{
+									flex: 1,
+									height: 1,
+									backgroundColor: COLORS.grey,
+									marginHorizontal: 10,
+								}}
+							/>
+						</View>
 
-						<Text>Google</Text>
-					</TouchableOpacity>
-				</View>
-			</View>
+						<View
+							style={{
+								flexDirection: "row",
+								justifyContent: "center",
+							}}
+						>
+							<TouchableOpacity
+								onPress={() => console.log("Pressed")}
+								style={{
+									flex: 1,
+									alignItems: "center",
+									justifyContent: "center",
+									flexDirection: "row",
+									height: 52,
+									borderWidth: 1,
+									borderColor: COLORS.grey,
+									marginRight: 4,
+									borderRadius: 10,
+								}}
+							>
+								<Image
+									source={require("../assets/facebook.png")}
+									style={{
+										height: 36,
+										width: 36,
+										marginRight: 8,
+									}}
+									resizeMode="contain"
+								/>
+
+								<Text>Facebook</Text>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								onPress={() => console.log("Pressed")}
+								style={{
+									flex: 1,
+									alignItems: "center",
+									justifyContent: "center",
+									flexDirection: "row",
+									height: 52,
+									borderWidth: 1,
+									borderColor: COLORS.grey,
+									marginRight: 4,
+									borderRadius: 10,
+								}}
+							>
+								<Image
+									source={require("../assets/google.png")}
+									style={{
+										height: 36,
+										width: 36,
+										marginRight: 8,
+									}}
+									resizeMode="contain"
+								/>
+
+								<Text>Google</Text>
+							</TouchableOpacity>
+						</View>
+					</View>				
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);
 };

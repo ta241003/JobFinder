@@ -7,6 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import BackButton from '../buttons/BackButton';
+import * as ImagePicker from 'expo-image-picker';
+import UploadModal from './UploadModal';
+import Avatar from './Avatar';
 
 const PersonalData = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -24,25 +27,75 @@ const PersonalData = () => {
       setDisplayDate(currentDate.toDateString()); // Cập nhật giá trị ngày đã chọn lên Text
     };
 
-  return (
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [image, setImage] = useState();
+
+    const uploadImage = async (mode) => {
+        try {
+        if(mode === "gallery"){
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+            result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1,1],
+            quality:1,
+            })
+        }else{
+            await ImagePicker.requestCameraPermissionsAsync();
+            result = await ImagePicker.launchCameraAsync({
+            cameraType: ImagePicker.CameraType.front,
+            allowsEditing: true,
+            aspect: [1,1],
+            quality: 1,
+        });
+        }
+        if (!result.canceled){
+            await saveImage(result.assets[0].uri);
+        }
+        }catch (error){
+        alert("Error uploading image: " + error.message);
+        setModalVisible(false);
+        }
+    };
+
+    const removeImage = async () => {
+        try {
+        saveImage(null);
+        } catch({message}){
+        alert(message);
+        setModalVisible(false);
+        }
+    }
+    
+    const saveImage = async (image) => {
+        try {
+        setImage(image);
+        setModalVisible(false);
+        }catch(error){
+        throw error;
+        }
+    };
+
+    return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
         <BackButton></BackButton>
-            <View style={{justifyContent:'center', alignItems:'center',marginTop:-5}}>
-                <Text style={{fontSize:20, fontWeight: 'bold',}}>Personal Data</Text>
-            </View>
+        <View style={{justifyContent:'center', alignItems:'center',marginTop:-5}}>
+            <Text style={{fontSize:20, fontWeight: 'bold',}}>Personal Data</Text>
+        </View>
         
-
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <Image
-                    style={styles.avatar}
-                    source={ require("../assets/avatar.png") } // Thay link_to_your_image bằng đường dẫn của ảnh đại diện của người dùng
-                />  
-                <View style={styles.cameraIconContainer}>
-                    <FontAwesome name="camera" size={15} color="white" />
-                </View>                 
+                <Avatar onButtonPress={() => setModalVisible(true)} uri={image}></Avatar>
+                <UploadModal 
+                    modalVisible={modalVisible} 
+                    onBackPress={() => setModalVisible((false))}
+                    onCameraPress={() => uploadImage()}
+                    onGalleryPress={() => uploadImage("gallery")}
+                    onRemovePress={() => removeImage()}></UploadModal>                 
             </View>
         </View>
+        
         <View style={styles.info_container}>
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Full Name</Text>
@@ -57,11 +110,9 @@ const PersonalData = () => {
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Email Address</Text>
                 <View style={styles.inputContainer}>                    
-                    <TextInput
+                    <Text
                     style={styles.input}
-                    placeholder="username@gmail.com"
-                    placeholderTextColor={'#83829A'}
-                    />
+                    >username@gmail.com</Text>
                 </View>
             </View>
             <View style={styles.titleContainer}>
@@ -108,7 +159,7 @@ const styles = StyleSheet.create({
     container:{
         justifyContent: 'center',
         alignItems: 'center',  
-        top: 40,
+        top: 20,
         left: 0,
         right: 0
     },
@@ -139,11 +190,10 @@ const styles = StyleSheet.create({
     },
     info_container: {
         flex: 1,
-        padding: 40,
-        top: 20
+        padding: 40
     },
     titleContainer:{
-        marginTop:30
+        marginTop:20
     },
     title: {
         fontSize: 20,
@@ -156,7 +206,8 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     input: {
-        fontSize: 18
+        fontSize: 18,
+        color: "#83829a"
     },    
     button: {
         backgroundColor: '#FF7754',

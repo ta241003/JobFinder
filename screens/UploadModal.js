@@ -20,11 +20,13 @@ const UploadModal = ({
             <View style={styles.centeredView}>
                 <View style={styles.modalBackground}></View>
                 <View style={styles.modalView}>
-                    <TouchableOpacity onPress={onBackPress} style={{position: 'absolute',top:10,right:20, backgroundColor:'#f5f5f5'}}>
-                        <MaterialCommunityIcons name="window-close" size={24} color="black" />
-                    </TouchableOpacity>
-                    <View style={{alignItems:'center', margin:10, fontSize: 25, fontWeight:500}}><Text>Profile Photo</Text></View>
-                    <View style={{flexDirection:'row', justifyContent:'space-evenly', marginTop:20}}>
+                    <View style={{alignItems:'flex-end', marginTop:10, marginRight:10}}>
+                        <TouchableOpacity onPress={onBackPress} style={{backgroundColor:'#f5f5f5', width:25}}>
+                            <MaterialCommunityIcons name="window-close" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{alignItems:'center', marginBottom: 10, fontWeight:500}}><Text style={{fontSize: 18}}>Profile Photo</Text></View>
+                    <View style={{flexDirection:'row', justifyContent:'space-evenly', marginTop:0}}>
                         <TouchableOpacity style={{alignItems:'center', backgroundColor: "#f5f5f5", padding:7, borderRadius:10}} onPress={onCameraPress}>
                             <MaterialCommunityIcons
                                 name="camera-outline"
