@@ -23,6 +23,26 @@ const Signup = ({ navigation }) => {
 	const [password, setPassword] = useState("");
 	const [fullName, setFullName] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [location, setLocation] = useState("");
+	const [birthday, setBirthday] = useState("");
+	const [avatarImage, setAvatarImage] = useState("");
+	const [applied, setApplied] = useState(0);
+	const [currentCv, setCurrentCv] = useState("");
+	const [aboutMyself, setAboutMyself] = useState("");
+	const [experience, setExperience] = useState({
+		company: "",
+		jobName: "",
+		startDate: "",
+		endDate: "",
+	});
+	const [skills, setSkills] = useState([]);
+	const [favoriteJob, setFavoriteJob] = useState({
+		logoImage: "",
+		company: "",
+		jobName: "",
+		jobTypes: "",
+		salary: "",
+	});
 
 	const validateInputs = () => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,44 +72,79 @@ const Signup = ({ navigation }) => {
 
 	const handleSignUp = () => {
 		if (validateInputs()) {
-			registerUser(email, password, fullName);
+			registerUser(
+				email,
+				password,
+				fullName,
+				location,
+				birthday,
+				avatarImage,
+				applied,
+				currentCv,
+				aboutMyself,
+				experience,
+				skills,
+				favoriteJob
+			);
 		}
 	};
 
-	registerUser = async (email, password, fullName) => {
-		await firebase
-			.auth()
-			.createUserWithEmailAndPassword(email, password)
-			.then(() => {
-				firebase
-					.auth()
-					.currentUser.sendEmailVerification({
-						handleCodeInApp: true,
-						url: "https://jobfinder-b5689.firebaseapp.com",
-					})
-					.then(() => {
-						alert("Verification email sent");
-					})
-					.catch((error) => {
-						alert(error.message);
-					})
-					.then(() => {
-						firebase
-							.firestore()
-							.collection("users")
-							.doc(firebase.auth().currentUser.uid)
-							.set({
-								email,
-								fullName,
-							});
-					})
-					.catch((error) => {
-						alert(error.message);
-					});
-			})
-			.catch((error) => {
-				alert(error.message);
+	const registerUser = async (
+		email,
+		password,
+		fullName,
+		location,
+		birthday,
+		avatarImage,
+		applied,
+		currentCv,
+		aboutMyself,
+		experience,
+		skills,
+		favoriteJob
+	) => {
+		try {
+			await firebase
+				.auth()
+				.createUserWithEmailAndPassword(email, password);
+			const user = firebase.auth().currentUser;
+			await user.sendEmailVerification({
+				handleCodeInApp: true,
+				url: "https://jobfinder-3e361.firebaseapp.com",
 			});
+			Alert.alert("Verification email sent");
+
+			await firebase
+				.firestore()
+				.collection("users")
+				.doc(user.uid)
+				.set({
+					Email: email,
+					FullName: fullName,
+					Location: location,
+					Birthday: birthday,
+					Avatar_image: avatarImage,
+					Applied: applied,
+					Current_cv: currentCv,
+					About_myself: aboutMyself,
+					Experience: {
+						company: experience.company,
+						jobName: experience.jobName,
+						start_date: experience.startDate,
+						end_date: experience.endDate,
+					},
+					Skills: skills,
+					Favorite_job: {
+						logo_image: favoriteJob.logoImage,
+						company: favoriteJob.company,
+						job_name: favoriteJob.jobName,
+						job_types: favoriteJob.jobTypes,
+						salary: favoriteJob.salary,
+					},
+				});
+		} catch (error) {
+			Alert.alert(error.message);
+		}
 	};
 
 	return (

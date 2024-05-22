@@ -3,13 +3,13 @@ import "firebase/compat/firestore";
 import "firebase/compat/auth";
 
 const firebaseConfig = {
-	apiKey: "AIzaSyCSfAfi38y93xhBx0o9hAZIYM1Dvk2A35A",
-	authDomain: "jobfinder-b5689.firebaseapp.com",
-	projectId: "jobfinder-b5689",
-	storageBucket: "jobfinder-b5689.appspot.com",
-	messagingSenderId: "188219372428",
-	appId: "1:188219372428:web:53ae7f013e158476cb9ca9",
-	measurementId: "G-3YPZM90KPS",
+	apiKey: "AIzaSyBPWYFikL-lZjfR45IO3GXeMzOCcWnyHM4",
+	authDomain: "jobfinder-3e361.firebaseapp.com",
+	projectId: "jobfinder-3e361",
+	storageBucket: "jobfinder-3e361.appspot.com",
+	messagingSenderId: "295818541454",
+	appId: "1:295818541454:web:d7b90340c7b29c05028cdf",
+	measurementId: "G-XFRY2N183C",
 };
 
 if (!firebase.apps.length) {
