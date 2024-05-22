@@ -39,29 +39,30 @@ const Profile = () => {
 
 	useEffect(() => {
 		const fetchUserData = async () => {
-			const snapshot = await firebase
-				.firestore()
-				.collection("users")
-				.doc(firebase.auth().currentUser.uid)
-				.get();
+			try {
+				const snapshot = await firebase
+					.firestore()
+					.collection("users")
+					.doc(firebase.auth().currentUser.uid)
+					.get();
 
-			if (snapshot.exists) {
-				const data = snapshot.data();
-				setUserAccount(data);
+				if (snapshot.exists) {
+					const data = snapshot.data();
+					setUserAccount(data);
 
-				// Check if Avatar_image exists and is a valid file path
-				if (data.Avatar_image) {
-					const fileInfo = await FileSystem.getInfoAsync(
-						data.Avatar_image
-					);
-					if (fileInfo.exists) {
-						setImageUri(data.Avatar_image);
-					} else {
-						console.log("Avatar image file does not exist");
+					// Lấy đường dẫn hình ảnh từ Avatar_image
+					const avatarImage = data.Avatar_image;
+
+					// Kiểm tra nếu Avatar_image tồn tại
+					if (avatarImage) {
+						// Gán đường dẫn hình ảnh vào state để hiển thị
+						setImageUri(avatarImage);
 					}
+				} else {
+					console.log("User does not exist");
 				}
-			} else {
-				console.log("User does not exist");
+			} catch (error) {
+				console.error("Error fetching user data: ", error);
 			}
 		};
 

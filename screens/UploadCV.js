@@ -38,7 +38,6 @@ const UploadCV = ({ navigation, route }) => {
 			const assets = res.assets;
 
 			const file = assets[0];
-			console.log(file);
 
 			const pdfFile = {
 				name: file.name.split(".")[0],

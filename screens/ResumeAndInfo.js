@@ -112,10 +112,15 @@ const ResumeAndInfo = () => {
 	const [clickCount, setClickCount] = useState({});
 	const handleSkillPress = (skill) => {
 		setClickCount((prevClickCount) => {
-			const newClickCount = { ...prevClickCount, [skill]: (prevClickCount[skill] || 0) + 1 };
+			const newClickCount = {
+				...prevClickCount,
+				[skill]: (prevClickCount[skill] || 0) + 1,
+			};
 			if (newClickCount[skill] === 2) {
 				// Xóa skill khỏi danh sách nếu đã nhấp 2 lần
-				setSkills((prevSkills) => prevSkills.filter((s) => s !== skill));
+				setSkills((prevSkills) =>
+					prevSkills.filter((s) => s !== skill)
+				);
 				delete newClickCount[skill]; // Xóa bộ đếm của skill đã bị xóa
 			}
 			return newClickCount;
@@ -185,7 +190,7 @@ const ResumeAndInfo = () => {
 						</Text>
 					</View>
 				</TouchableOpacity>
-				
+
 				<View style={styles.resume_container}>
 					<View
 						style={{ flexDirection: "row", justifyItems: "center" }}
@@ -235,12 +240,17 @@ const ResumeAndInfo = () => {
 					</View>
 					<View style={styles.listSkill}>
 						{skills.map((skill, index) => (
-						<TouchableOpacity key={index} onPress={() => handleSkillPress(skill)}>
-							<ListSkill skill={skill} />
-						</TouchableOpacity>
+							<TouchableOpacity
+								key={index}
+								onPress={() => handleSkillPress(skill)}
+							>
+								<ListSkill skill={skill} />
+							</TouchableOpacity>
 						))}
 					</View>
-					<Text style={{marginTop:10}}>* Tap 2 times to delete skill</Text>
+					<Text style={{ marginTop: 10 }}>
+						* Tap 2 times to delete skill
+					</Text>
 
 					<Modal
 						animationType="slide"
