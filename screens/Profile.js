@@ -1,24 +1,17 @@
+import React, { useState, useEffect } from "react";
 import {
 	ScrollView,
 	StyleSheet,
 	Text,
 	View,
 	Image,
-	Modal,
-	Dimensions,
+	TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
 import COLORS from "../constants/colors";
-import { TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
-import UploadModal from "./UploadModal";
-import Avatar from "./Avatar";
 import { firebase } from "../configFirebase";
 
 const ListItem = ({ iconName, text, onPress }) => {
@@ -41,6 +34,39 @@ const ListItem = ({ iconName, text, onPress }) => {
 
 const Profile = () => {
 	const navigation = useNavigation();
+	const [userAccount, setUserAccount] = useState("");
+	const [imageUri, setImageUri] = useState(null);
+
+	useEffect(() => {
+		const fetchUserData = async () => {
+			const snapshot = await firebase
+				.firestore()
+				.collection("users")
+				.doc(firebase.auth().currentUser.uid)
+				.get();
+
+			if (snapshot.exists) {
+				const data = snapshot.data();
+				setUserAccount(data);
+
+				// Check if Avatar_image exists and is a valid file path
+				if (data.Avatar_image) {
+					const fileInfo = await FileSystem.getInfoAsync(
+						data.Avatar_image
+					);
+					if (fileInfo.exists) {
+						setImageUri(data.Avatar_image);
+					} else {
+						console.log("Avatar image file does not exist");
+					}
+				}
+			} else {
+				console.log("User does not exist");
+			}
+		};
+
+		fetchUserData();
+	}, []);
 
 	const handleBack = () => {
 		navigation.navigate("Home"); // Điều hướng về trang Home khi nhấn nút back
@@ -70,25 +96,6 @@ const Profile = () => {
 		navigation.navigate("Policy"); // Điều hướng đến trang Privacy & Policy
 	};
 
-	// const [image, setImage] = useState();
-
-	const [userAccount, setUserAccount] = useState("");
-
-	useEffect(() => {
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(firebase.auth().currentUser.uid)
-			.get()
-			.then((snapshot) => {
-				if (snapshot.exists) {
-					setUserAccount(snapshot.data());
-				} else {
-					console.log("User does not exist");
-				}
-			});
-	});
-
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
 			<ScrollView>
@@ -106,7 +113,17 @@ const Profile = () => {
 				<View style={styles.container}>
 					<View style={styles.container_wrapped}>
 						<View style={styles.avatarContainer}>
-							<Image source={"../assets/none_avatar.jpg"} />
+							{imageUri ? (
+								<Image
+									source={{ uri: imageUri }}
+									style={styles.avatar}
+								/>
+							) : (
+								<Image
+									source={require("../assets/none_avatar.jpg")}
+									style={styles.avatar}
+								/>
+							)}
 						</View>
 
 						<View style={{ alignItems: "center" }}>
@@ -249,17 +266,6 @@ const styles = StyleSheet.create({
 	avatar: {
 		width: "100%",
 		height: "100%",
-	},
-	cameraIconContainer: {
-		position: "absolute",
-		bottom: 0,
-		backgroundColor: "rgba(0, 0, 0, 0.5)",
-		width: "100%",
-		height: "30%",
-		aspectRatio: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		zIndex: 1,
 	},
 	listContainer: {
 		marginTop: 10,

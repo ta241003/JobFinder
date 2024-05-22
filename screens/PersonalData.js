@@ -9,36 +9,46 @@ import * as ImagePicker from "expo-image-picker";
 import UploadModal from "./UploadModal";
 import Avatar from "./Avatar";
 import { firebase } from "../configFirebase";
+import { useNavigation } from "@react-navigation/native";
 
 const PersonalData = () => {
+	const navigation = useNavigation();
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [displayDate, setDisplayDate] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 	const [image, setImage] = useState(null);
 	const [userAccount, setUserAccount] = useState({});
-	const [initialBirthday, setInitialBirthday] = useState("");
 	const [fullName, setFullName] = useState("");
 	const [location, setLocation] = useState("");
 
 	useEffect(() => {
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(firebase.auth().currentUser.uid)
-			.get()
-			.then((snapshot) => {
-				if (snapshot.exists) {
-					const userData = snapshot.data();
+		const fetchUserData = async () => {
+			try {
+				const userDoc = await firebase
+					.firestore()
+					.collection("users")
+					.doc(firebase.auth().currentUser.uid)
+					.get();
+
+				if (userDoc.exists) {
+					const userData = userDoc.data();
 					setUserAccount(userData);
 					setFullName(userData.FullName);
 					setLocation(userData.Location);
-					const birthday = userData.Birthday;
-					setInitialBirthday(birthday);
+					const birthday = new Date(userData.Birthday);
+					setSelectedDate(birthday);
+					setDisplayDate(birthday.toDateString());
+					setImage(userData.Avatar_image); // Load image from Firestore
 				} else {
 					console.log("User does not exist");
 				}
-			});
+			} catch (error) {
+				console.error("Error fetching user data: ", error);
+			}
+		};
+
+		fetchUserData();
 	}, []);
 
 	const onDatePickerPress = () => {
@@ -91,20 +101,30 @@ const PersonalData = () => {
 		}
 	};
 
-	const saveImage = async (image) => {
+	const saveImage = async (imageUri) => {
 		try {
-			setImage(image);
+			setImage(imageUri);
 			setModalVisible(false);
+
+			const userRef = firebase
+				.firestore()
+				.collection("users")
+				.doc(firebase.auth().currentUser.uid);
+
+			// Update the Firestore document with the image URL
+			await userRef.update({
+				Avatar_image: imageUri,
+			});
 		} catch (error) {
 			throw error;
 		}
 	};
 
 	const saveUserData = () => {
-		// if (!fullName.trim() || !location.trim() || !displayDate.trim()) {
-		// 	Alert.alert("Error", "Please fill in all fields");
-		// 	return;
-		// }
+		if (!fullName.trim() || !location.trim() || !displayDate.trim()) {
+			Alert.alert("Error", "Please fill in all fields");
+			return;
+		}
 
 		const userRef = firebase
 			.firestore()
@@ -116,14 +136,23 @@ const PersonalData = () => {
 				FullName: fullName,
 				Location: location,
 				Birthday: selectedDate.toDateString(),
+				Avatar_image: image, // Save image URL
 			})
 			.then(() => {
 				console.log("User data updated successfully");
+				Alert.alert("Success", "User data updated successfully", [
+					{
+						text: "OK",
+						onPress: () => navigation.goBack(),
+					},
+				]);
 			})
 			.catch((error) => {
 				console.error("Error updating user data: ", error);
 			});
 	};
+
+	console.log(image);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -151,10 +180,9 @@ const PersonalData = () => {
 					<Text style={styles.title}>Full Name</Text>
 					<View style={styles.inputContainer}>
 						<TextInput
+							value={fullName}
 							onChangeText={setFullName}
 							style={styles.input}
-							placeholder={userAccount.FullName}
-							placeholderTextColor={"#83829A"}
 						/>
 					</View>
 				</View>
@@ -168,10 +196,9 @@ const PersonalData = () => {
 					<Text style={styles.title}>Location</Text>
 					<View style={styles.inputContainer}>
 						<TextInput
+							value={location}
 							onChangeText={setLocation}
 							style={styles.input}
-							placeholder={userAccount.Location}
-							placeholderTextColor={"#83829A"}
 						/>
 					</View>
 				</View>
@@ -179,9 +206,7 @@ const PersonalData = () => {
 					<View style={styles.titleContainer}>
 						<Text style={styles.title}>Birthday</Text>
 						<View style={styles.inputContainer}>
-							<Text style={styles.input}>
-								{displayDate || initialBirthday}
-							</Text>
+							<Text style={styles.input}>{displayDate}</Text>
 						</View>
 					</View>
 				</TouchableOpacity>
