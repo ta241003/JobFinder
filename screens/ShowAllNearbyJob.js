@@ -11,7 +11,7 @@ const nearbyjob = [
 		logo: require("../assets/google.png"),
 		job: "React-native Developer",
         location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
 	},
 	{
 		id: 2,
@@ -19,7 +19,7 @@ const nearbyjob = [
 		logo: require("../assets/facebook.png"),
 		job: "Load Product Manager",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
 	},
 	{
 		id: 3,
@@ -27,7 +27,7 @@ const nearbyjob = [
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
 	},
     {
 		id: 4,
@@ -35,12 +35,27 @@ const nearbyjob = [
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
 	},
 	// Add more company here...
 ];
 
 const Nearby_Job = ({ company, onPress }) => {
+	const truncateDescription = (text, maxLength) => {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        // Cắt chuỗi đến maxLength ký tự
+        let truncatedText = text.substr(0, maxLength);
+        // Đảm bảo cắt chuỗi tại khoảng trắng gần nhất để tránh cắt giữa từ
+        truncatedText = truncatedText.substr(0, Math.min(truncatedText.length, truncatedText.lastIndexOf(" ")));
+        // Thêm dấu ... nếu cần
+        if (truncatedText.length < text.length) {
+            truncatedText += '...';
+        }
+        return truncatedText;
+    };
+
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.nearby_job_container}>
 			<View style={{ alignItems: "center", justifyContent: "center" }}>
@@ -50,7 +65,7 @@ const Nearby_Job = ({ company, onPress }) => {
 				<Text style={styles.company}>{company.name}</Text>
 				<Text style={styles.jobname}>{company.job}</Text>
 				<Text style={styles.location}>{company.location}</Text>
-                <Text style={styles.describe}>{company.description}</Text>
+                <Text style={styles.describe}>{truncateDescription(company.description, 110)}</Text>
 			</View>
 
 		</TouchableOpacity>

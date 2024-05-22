@@ -97,6 +97,18 @@ const Profile = () => {
 		navigation.navigate("Policy"); // Điều hướng đến trang Privacy & Policy
 	};
 
+	const changePassword = () => {
+		firebase
+			.auth()
+			.sendPasswordResetEmail(firebase.auth().currentUser.email)
+			.then(() => {
+				alert("Password reset email sent");
+			})
+			.catch((error) => {
+				alert(error);
+			});
+	};
+
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
 			<ScrollView>
@@ -200,6 +212,16 @@ const Profile = () => {
 						iconName="format-list-bulleted"
 						text="My Application"
 						onPress={MyApplied}
+					/>
+					<ListItem
+						iconName="password"
+						text="Change Password"
+						onPress={() => {changePassword()}}
+					/>
+					<ListItem
+						iconName="logout"
+						text="Log out"
+						onPress={() => {firebase.auth().signOut()}}
 					/>
 				</View>
 
