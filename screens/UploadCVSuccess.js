@@ -9,8 +9,10 @@ import {
 } from "react-native";
 import BackButton from "../buttons/BackButton";
 import COLORS from "../constants/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const UploadCVSuccess = ({ navigation }) => {
+const UploadCVSuccess = ({ navigation, route }) => {
+	const { company, cvFile } = route.params;
 	return (
 		<SafeAreaView>
 			<ScrollView>
@@ -42,28 +44,31 @@ const UploadCVSuccess = ({ navigation }) => {
 								fontSize: 18,
 							}}
 						>
-							Product Designer
+							{company.job}
 						</Text>
 						<Text style={{ marginBottom: 3 }}>
-							Full time / Hai Chau, Da Nang
+							{company.description}
 						</Text>
-						<Text>Salary: $5k</Text>
+						<Text>{company.name}</Text>
 					</View>
 				</View>
 				<View style={styles.upload_container}>
-					<Text style={{ color: COLORS.maugach }}>
-						Show CV in here
-					</Text>
+					<View
+						style={{ flexDirection: "row", alignItems: "center" }}
+					>
+						<MaterialCommunityIcons
+							name="file-pdf-box"
+							size={70}
+							color="#b22222"
+						/>
+						<Text>{cvFile.name}</Text>
+					</View>
 				</View>
 				<View
-					style={{
-						justifyContent: "center",
-						alignItems: "center",
-						marginTop: 10,
-					}}
+					style={{ justifyContent: "center", alignItems: "center" }}
 				>
 					<Image
-						style={{ height: 250, width: 250 }}
+						style={{ height: 200, width: 200 }}
 						source={require("../assets/success_cv.png")}
 					></Image>
 				</View>
