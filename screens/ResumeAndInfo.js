@@ -67,19 +67,6 @@ const ListSkill = ({ skill }) => {
 };
 
 const ResumeAndInfo = () => {
-	const [editing, setEditing] = useState(false);
-	const [content, setContent] = useState(
-		"Hi, I’m users, a web designer with 3 year experience..."
-	); // Nội dung ban đầu
-
-	const handleEditPress = () => {
-		setEditing(true);
-	};
-
-	const handleSavePress = () => {
-		setEditing(false);
-	};
-
 	const navigation = useNavigation();
 	const AddExperience = () => {
 		navigation.navigate("AddExperience");
@@ -89,20 +76,7 @@ const ResumeAndInfo = () => {
 		navigation.navigate("ChangeExperience");
 	};
 
-	const [skills, setSkills] = useState([
-		"Singing",
-		"Team work",
-		"Communication",
-		"Leader",
-	]);
 	const [modalVisible, setModalVisible] = useState(false);
-	const [newSkill, setNewSkill] = useState("");
-
-	const addSkill = () => {
-		setSkills([...skills, newSkill]);
-		setNewSkill("");
-		setModalVisible(false);
-	};
 
 	const [cvFile, setCvFile] = useState(null);
 
@@ -127,6 +101,33 @@ const ResumeAndInfo = () => {
 		} catch (err) {
 			Alert.alert("Error", "Failed to pick document: " + err.message);
 		}
+	};
+
+	const [skills, setSkills] = useState([
+		"Singing",
+		"Team work",
+		"Communication",
+		"Leader",
+	]);
+	const [clickCount, setClickCount] = useState({});
+	const handleSkillPress = (skill) => {
+		setClickCount((prevClickCount) => {
+			const newClickCount = { ...prevClickCount, [skill]: (prevClickCount[skill] || 0) + 1 };
+			if (newClickCount[skill] === 2) {
+				// Xóa skill khỏi danh sách nếu đã nhấp 2 lần
+				setSkills((prevSkills) => prevSkills.filter((s) => s !== skill));
+				delete newClickCount[skill]; // Xóa bộ đếm của skill đã bị xóa
+			}
+			return newClickCount;
+		});
+	};
+
+	const [newSkill, setNewSkill] = useState("");
+
+	const addSkill = () => {
+		setSkills([...skills, newSkill]);
+		setNewSkill("");
+		setModalVisible(false);
 	};
 
 	return (
@@ -184,52 +185,7 @@ const ResumeAndInfo = () => {
 						</Text>
 					</View>
 				</TouchableOpacity>
-				<View style={styles.resume_container}>
-					<View
-						style={{ flexDirection: "row", justifyItems: "center" }}
-					>
-						<Text
-							style={{ flex: 1, fontSize: 18, marginBottom: 10 }}
-						>
-							About me
-						</Text>
-					</View>
-					{editing ? (
-						<View>
-							<TextInput
-								style={{ fontSize: 15 }}
-								multiline
-								value={content}
-								onChangeText={setContent}
-							/>
-							<TouchableOpacity onPress={handleSavePress}>
-								<Text style={{ color: COLORS.maugach }}>
-									Save
-								</Text>
-							</TouchableOpacity>
-						</View>
-					) : (
-						<TouchableOpacity onPress={handleEditPress}>
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-								}}
-							>
-								<Text
-									style={{
-										flex: 1,
-										fontSize: 15,
-										marginBottom: 10,
-										color: COLORS.hidetitle,
-									}}
-								>
-									{content}
-								</Text>
-							</View>
-						</TouchableOpacity>
-					)}
-				</View>
+				
 				<View style={styles.resume_container}>
 					<View
 						style={{ flexDirection: "row", justifyItems: "center" }}
@@ -279,9 +235,12 @@ const ResumeAndInfo = () => {
 					</View>
 					<View style={styles.listSkill}>
 						{skills.map((skill, index) => (
-							<ListSkill key={index} skill={skill} />
+						<TouchableOpacity key={index} onPress={() => handleSkillPress(skill)}>
+							<ListSkill skill={skill} />
+						</TouchableOpacity>
 						))}
 					</View>
+					<Text style={{marginTop:10}}>* Tap 2 times to delete skill</Text>
 
 					<Modal
 						animationType="slide"

@@ -29,10 +29,6 @@ const ListItem = ({company, jobname, describe, time}) => {
           <Text style={styles.jobname}>{jobname}</Text>
           <Text style={styles.describe}>{describe}</Text>
         </View>
-        <View>          
-          <AntDesign name="closecircle" size={24} color="#ff7754" />
-          <Text style={styles.time}>{time}</Text>
-        </View>
       </View>
   );
 };

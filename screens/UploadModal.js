@@ -15,6 +15,7 @@ const UploadModal = ({
 	onGalleryPress,
 	onRemovePress,
 }) => {
+
 	return (
 		<Modal animationType="slide" visible={modalVisible} transparent={true}>
 			<View style={styles.centeredView}>

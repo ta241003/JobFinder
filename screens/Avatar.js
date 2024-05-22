@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderColor: "#ccc",
-        borderWidth:5,
     },
     editButton:{
         position: 'absolute',
