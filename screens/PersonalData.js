@@ -103,7 +103,6 @@ const PersonalData = () => {
 
 	const saveImage = async (imageUri) => {
 		try {
-			setImage(imageUri);
 			setModalVisible(false);
 
 			const userRef = firebase
@@ -111,10 +110,30 @@ const PersonalData = () => {
 				.collection("users")
 				.doc(firebase.auth().currentUser.uid);
 
-			// Update the Firestore document with the image URL
+			// Tạo một tên ngẫu nhiên cho hình ảnh trong Storage
+			const imageName = `${Date.now()}.jpg`;
+
+			// Tạo đường dẫn trong Storage
+			const response = await fetch(imageUri);
+			const blob = await response.blob();
+			const storageRef = firebase
+				.storage()
+				.ref()
+				.child(`avatars/${imageName}`);
+
+			// Upload hình ảnh vào Storage
+			await storageRef.put(blob);
+
+			// Lấy URL của hình ảnh từ Storage
+			const imageURL = await storageRef.getDownloadURL();
+
+			// Lưu URL vào Firestore
 			await userRef.update({
-				Avatar_image: imageUri,
+				Avatar_image: imageURL,
 			});
+
+			// Đặt hình ảnh cho giao diện người dùng
+			setImage(imageURL);
 		} catch (error) {
 			throw error;
 		}
@@ -151,8 +170,6 @@ const PersonalData = () => {
 				console.error("Error updating user data: ", error);
 			});
 	};
-
-	console.log(image);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
