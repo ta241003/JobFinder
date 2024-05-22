@@ -147,7 +147,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 		<ScrollView>
 			<View style={styles.head}>
 				<Text style={styles.userName}>
-					Hello {userName.fullName} 👋
+					Hello {userName.FullName} 👋
 				</Text>
 				<TouchableOpacity
 					onPress={() => navigation.navigate("Profile")}
