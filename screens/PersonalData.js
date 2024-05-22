@@ -38,7 +38,7 @@ const PersonalData = () => {
 					setLocation(userData.Location);
 					const birthday = new Date(userData.Birthday);
 					setSelectedDate(birthday);
-					setDisplayDate(birthday.toDateString());
+					setDisplayDate(birthday.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }));
 					setImage(userData.Avatar_image); // Load image from Firestore
 				} else {
 					console.log("User does not exist");
@@ -59,7 +59,7 @@ const PersonalData = () => {
 		if (selectedDate) {
 			setShowDatePicker(false);
 			setSelectedDate(selectedDate);
-			setDisplayDate(selectedDate.toDateString());
+			setDisplayDate(selectedDate.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }));
 		}
 	};
 

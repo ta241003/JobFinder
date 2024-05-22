@@ -8,19 +8,34 @@ import COLORS from "../constants/colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddExperience = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [displayDate, setDisplayDate] = useState('');
+    const [startDated, setstartDated] = useState(new Date());
+    const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+    const [displayStartDate, setDisplayStartDate] = useState('');
   
-    const onDatePickerPress = () => {
-      setShowDatePicker(true);
+    const onStartDatePickerPress = () => {
+      setShowStartDatePicker(true);
     };
   
-    const onChange = (event, selectedDate) => {
-      const currentDate = selectedDate || date;
-      setShowDatePicker(false);
-      setSelectedDate(currentDate);
-      setDisplayDate(currentDate.toDateString()); // Cập nhật giá trị ngày đã chọn lên Text
+    const changeStartDate = (event, startDated) => {
+      const currentStartDate = startDated || date;
+      setShowStartDatePicker(false);
+      setstartDated(currentStartDate);
+      setDisplayStartDate(currentStartDate.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })); // Cập nhật giá trị ngày đã chọn lên Text
+    };
+
+    const [endDated, setendDated] = useState(new Date());
+    const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+    const [displayEndDate, setDisplayEndDate] = useState('');
+
+    const onEndDatePickerPress = () => {
+        setShowEndDatePicker(true);
+      };
+  
+    const changeEndDate = (event, endDated) => {
+      const currentEndDate = endDated || date;
+      setShowEndDatePicker(false);
+      setendDated(currentEndDate);
+      setDisplayEndDate(currentEndDate.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' })); // Cập nhật giá trị ngày đã chọn lên Text
     };
 
     return(
@@ -43,45 +58,45 @@ const AddExperience = () => {
                     </View>
                 </View>
                 <View style={{flexDirection:'row', marginTop:30}}>
-                    <TouchableOpacity style={{flex:1, marginRight:10}} onPress={onDatePickerPress}>
+                    <TouchableOpacity style={{flex:1, marginRight:10}} onPress={onStartDatePickerPress}>
                         <View>
                             <Text style={styles.title}>Start date</Text>
                             <View style={styles.inputContainer}>
                                 <View>
-                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10 }}>{displayDate || 'DD/MM/YYYY'}</Text>
+                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10 }}>{displayStartDate || 'DD/MM/YYYY'}</Text>
                                 </View>
                             </View>
                         </View>
                     </TouchableOpacity>
-                    {showDatePicker && (
+                    {showStartDatePicker && (
                     <DateTimePicker
                         testID="dateTimePicker"
-                        value={selectedDate}
+                        value={startDated}
                         mode="date"
                         is24Hour={true}
                         display="default"
-                        onChange={onChange}
+                        onChange={changeStartDate}
                     />)}
-                    
-                    <TouchableOpacity style={{flex:1, marginLeft:10}} onPress={onDatePickerPress}>
+                    <TouchableOpacity style={{flex:1, marginLeft:10}} onPress={onEndDatePickerPress}>
                         <View>
                             <Text style={styles.title}>End date</Text>
                             <View style={styles.inputContainer}>
                                 <View>
-                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10}}>{displayDate || 'DD/MM/YYYY'}</Text>
+                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10}}>{displayEndDate || 'DD/MM/YYYY'}</Text>
                                 </View>
                             </View>
                         </View>
                     </TouchableOpacity>
-                    {showDatePicker && (
+                    {showEndDatePicker && (
                     <DateTimePicker
                         testID="dateTimePicker"
-                        value={selectedDate}
+                        value={endDated}
                         mode="date"
                         is24Hour={true}
                         display="default"
-                        onChange={onChange}
+                        onChange={changeEndDate}
                     />)}
+                    
                 </View>
             </View>
             <View style={{ alignItems:'center', justifyContent:'center'}}>
