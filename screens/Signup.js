@@ -51,54 +51,45 @@ const Signup = ({ navigation }) => {
 	};
 
 	const handleSignUp = () => {
-		console.log("Hello from handleSignUp");
-		if (!validateInputs()) {
-			registerUser(email, password, confirmPassword);
+		if (validateInputs()) {
+			registerUser(email, password, fullName);
 		}
 	};
 
-	const registerUser = async (email, password, confirmPassword) => {
-		console.log("Hello from registerUser");
-		try {
-			const response = await fetch(
-				"http://127.0.0.1:8000/api/auth/sign-up/",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						email,
-						password,
-						password2: confirmPassword,
-					}),
-				}
-			);
-
-			console.log(response);
-
-			const responseData = await response.json();
-
-			if (response.ok) {
-				// Registration successful
-				Alert.alert("Registration Successful", "You can now log in.", [
-					{ text: "OK", onPress: () => navigation.navigate("Login") },
-				]);
-			} else {
-				// Registration failed
-				Alert.alert(
-					"Registration Failed",
-					responseData.detail ||
-						"An error occurred. Please try again."
-				);
-			}
-		} catch (error) {
-			// Handle network errors or other exceptions
-			Alert.alert(
-				"Registration Error",
-				error.message || "An error occurred. Please try again."
-			);
-		}
+	registerUser = async (email, password, fullName) => {
+		await firebase
+			.auth()
+			.createUserWithEmailAndPassword(email, password)
+			.then(() => {
+				firebase
+					.auth()
+					.currentUser.sendEmailVerification({
+						handleCodeInApp: true,
+						url: "https://jobfinder-b5689.firebaseapp.com",
+					})
+					.then(() => {
+						alert("Verification email sent");
+					})
+					.catch((error) => {
+						alert(error.message);
+					})
+					.then(() => {
+						firebase
+							.firestore()
+							.collection("users")
+							.doc(firebase.auth().currentUser.uid)
+							.set({
+								email,
+								fullName,
+							});
+					})
+					.catch((error) => {
+						alert(error.message);
+					});
+			})
+			.catch((error) => {
+				alert(error.message);
+			});
 	};
 
 	return (
