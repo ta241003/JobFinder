@@ -97,18 +97,7 @@ const DescribeJob = ({ navigation, route }) => {
 						selectedTab === "Company" && styles.contentVisible,
 					]}
 				>
-					<Text>
-						Instagram is an American photo and video sharing social
-						networking service created by Kevin Systrom and Mike
-						Krieger. In April 2012, Facebook acquired the service
-						for approximately $1 billion in cash and stock. The app
-						allows users to upload media that can be edited with
-						filters and sorted by hashtags and geotagging. Posts can
-						be shared publicly or with pre-approved followers. Users
-						can browse other users content by tags and location and
-						see trending content. Users can like photos and follow
-						other users to add their content to their personal feed.
-					</Text>
+					<Text>{company.companyinfo}</Text>
 				</View>
 			)}
 

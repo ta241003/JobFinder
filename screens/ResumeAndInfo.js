@@ -75,6 +75,7 @@ const ResumeAndInfo = () => {
 
 	const [editing, setEditing] = useState(false);
 	const [content, setContent] = useState("");
+	const [experiences, setExperiences] = useState([]);
 
 	const handleEditPress = () => {
 		setEditing(true);
@@ -100,10 +101,6 @@ const ResumeAndInfo = () => {
 
 	const AddExperience = () => {
 		navigation.navigate("AddExperience");
-	};
-
-	const ChangeExperience = () => {
-		navigation.navigate("ChangeExperience");
 	};
 
 	const [modalVisible, setModalVisible] = useState(false);
@@ -178,31 +175,37 @@ const ResumeAndInfo = () => {
 	};
 
 	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				const userDoc = await firebase
-					.firestore()
-					.collection("users")
-					.doc(firebase.auth().currentUser.uid)
-					.get();
+		const unsubscribe = navigation.addListener("focus", () => {
+			fetchUserData(); // Hàm lấy dữ liệu từ Firestore
+		});
+		return unsubscribe;
+	}, [navigation]);
 
-				if (userDoc.exists) {
-					const userData = userDoc.data();
-					setUserAccount(userData);
-					if (userData.Skills) {
-						setSkills(userData.Skills);
-					}
-					setContent(userData.About_myself || "");
-				} else {
-					console.log("User does not exist");
+	const fetchUserData = async () => {
+		try {
+			const userDoc = await firebase
+				.firestore()
+				.collection("users")
+				.doc(firebase.auth().currentUser.uid)
+				.get();
+
+			if (userDoc.exists) {
+				const userData = userDoc.data();
+				setUserAccount(userData);
+				if (userData.Skills) {
+					setSkills(userData.Skills);
 				}
-			} catch (error) {
-				console.error("Error fetching user data: ", error);
+				setContent(userData.About_myself || "");
+				if (userData.experiences) {
+					setExperiences(userData.experiences);
+				}
+			} else {
+				console.log("User does not exist");
 			}
-		};
-
-		fetchUserData();
-	}, []);
+		} catch (error) {
+			console.error("Error fetching user data: ", error);
+		}
+	};
 
 	return (
 		<SafeAreaView>
@@ -325,13 +328,21 @@ const ResumeAndInfo = () => {
 						/>
 					</View>
 					<View style={styles.listExperience}>
-						<ListExperience
-							job="UX/UI"
-							company="Facebook"
-							start_time="2 Jan 2018"
-							end_time="2 Jan 2018"
-							onPress={ChangeExperience}
-						/>
+						{/* Lặp qua mảng experiences và render mỗi mục bằng component ListExperience */}
+						{experiences.map((experience, index) => (
+							<ListExperience
+								key={index}
+								job={experience.jobName}
+								company={experience.companyName}
+								start_time={experience.startDate}
+								end_time={experience.endDate}
+								onPress={() =>
+									navigation.navigate("ChangeExperience", {
+										experience,
+									})
+								}
+							/>
+						))}
 					</View>
 				</View>
 				<View style={styles.skill_container}>

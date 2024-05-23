@@ -27,7 +27,6 @@ const Signup = ({ navigation }) => {
 	const [birthday, setBirthday] = useState("");
 	const [avatarImage, setAvatarImage] = useState("");
 	const [applied, setApplied] = useState(0);
-	const [currentCv, setCurrentCv] = useState("");
 	const [aboutMyself, setAboutMyself] = useState("");
 	const [experience, setExperience] = useState([
 		{ company: "", jobName: "", startDate: "", endDate: "" },
@@ -79,7 +78,6 @@ const Signup = ({ navigation }) => {
 				birthday,
 				avatarImage,
 				applied,
-				currentCv,
 				aboutMyself,
 				experience,
 				skills,
@@ -96,7 +94,6 @@ const Signup = ({ navigation }) => {
 		birthday,
 		avatarImage,
 		applied,
-		currentCv,
 		aboutMyself,
 		experience,
 		skills,
@@ -124,7 +121,6 @@ const Signup = ({ navigation }) => {
 					Birthday: birthday,
 					Avatar_image: avatarImage,
 					Applied: applied,
-					Current_cv: currentCv,
 					About_myself: aboutMyself,
 					Experience: {
 						company: experience.company,
