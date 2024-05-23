@@ -32,6 +32,23 @@ const ListItem = ({ iconName, text, onPress }) => {
 	);
 };
 
+const AnItem = ({ iconName, text, onPress }) => {
+	return (
+		<TouchableOpacity onPress={onPress}>
+			<View style={styles.item_container}>
+				<View style={styles.leftSquare}>
+					<MaterialIcons
+						name={iconName}
+						size={24}
+						color={COLORS.maugach}
+					/>
+				</View>
+				<Text style={styles.text}>{text}</Text>
+			</View>
+		</TouchableOpacity>
+	);
+};
+
 const Profile = () => {
 	const navigation = useNavigation();
 	const [userAccount, setUserAccount] = useState("");
@@ -213,15 +230,19 @@ const Profile = () => {
 						text="My Application"
 						onPress={MyApplied}
 					/>
-					<ListItem
+					<AnItem
 						iconName="password"
 						text="Change Password"
-						onPress={() => {changePassword()}}
+						onPress={() => {
+							changePassword();
+						}}
 					/>
-					<ListItem
+					<AnItem
 						iconName="logout"
 						text="Log out"
-						onPress={() => {firebase.auth().signOut()}}
+						onPress={() => {
+							firebase.auth().signOut();
+						}}
 					/>
 				</View>
 

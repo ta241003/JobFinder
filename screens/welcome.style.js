@@ -12,7 +12,8 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		paddingHorizontal: 20,
-		marginVertical: 30,
+		marginTop: 50,
+		marginBottom: 30,
 	},
 	menu: {
 		marginTop: 50,
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
 		color: "#555555",
 	},
 	describe: {
-		marginTop:10,
+		marginTop: 10,
 		fontSize: 15,
 		color: "#555555",
 	},

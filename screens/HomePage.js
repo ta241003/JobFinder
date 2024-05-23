@@ -21,8 +21,9 @@ const popularjob = [
 		name: "Google",
 		logo: require("../assets/google.png"),
 		job: "React-native Developer",
-        location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		location: "Hai Chau, Da Nang",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 2,
@@ -30,7 +31,8 @@ const popularjob = [
 		logo: require("../assets/facebook.png"),
 		job: "Load Product Manager",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 3,
@@ -38,7 +40,8 @@ const popularjob = [
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	// Add more company here...
 ];
@@ -49,8 +52,9 @@ const nearbyjob = [
 		name: "Google",
 		logo: require("../assets/google.png"),
 		job: "React-native Developer",
-        location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		location: "Hai Chau, Da Nang",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 2,
@@ -58,7 +62,8 @@ const nearbyjob = [
 		logo: require("../assets/facebook.png"),
 		job: "Load Product Manager",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	{
 		id: 3,
@@ -66,7 +71,8 @@ const nearbyjob = [
 		logo: require("../assets/google.png"),
 		job: "Tech Leader",
 		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
+		description:
+			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
 	},
 	// Add more company here...
 ];
@@ -87,6 +93,24 @@ const Nearby_Job = ({ company, onPress }) => {
 };
 
 const Popular_Job = ({ item, onPress }) => {
+	const truncateDescription = (text, maxLength) => {
+		if (text.length <= maxLength) {
+			return text;
+		}
+		// Cắt chuỗi đến maxLength ký tự
+		let truncatedText = text.substr(0, maxLength);
+		// Đảm bảo cắt chuỗi tại khoảng trắng gần nhất để tránh cắt giữa từ
+		truncatedText = truncatedText.substr(
+			0,
+			Math.min(truncatedText.length, truncatedText.lastIndexOf(" "))
+		);
+		// Thêm dấu ... nếu cần
+		if (truncatedText.length < text.length) {
+			truncatedText += "...";
+		}
+		return truncatedText;
+	};
+
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.companyCard}>
 			<View style={styles.cardContent}>
@@ -95,10 +119,10 @@ const Popular_Job = ({ item, onPress }) => {
 				</View>
 				<View style={styles.companyInfo}>
 					<Text style={styles.companyName}>{item.name}</Text>
-					<Text style={styles.jobName}>{item.job}</Text>
-					<Text style={styles.jobDescription}>
-						{item.location}
+					<Text style={styles.jobName}>
+						{truncateDescription(item.job, 20)}
 					</Text>
+					<Text style={styles.jobDescription}>{item.location}</Text>
 				</View>
 			</View>
 			<AntDesign
@@ -126,56 +150,57 @@ const changePassword = () => {
 
 const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 	const [activeJobType, setActiveJobType] = useState("Full-time");
-	const [userName, setUserName] = useState("");
+	const [userAccount, setUserAccount] = useState({});
+	const [avatarUrl, setAvatarUrl] = useState("");
 
 	useEffect(() => {
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(firebase.auth().currentUser.uid)
-			.get()
-			.then((snapshot) => {
-				if (snapshot.exists) {
-					setUserName(snapshot.data());
+		const fetchUserData = async () => {
+			try {
+				const userId = firebase.auth().currentUser.uid;
+				const userDoc = await firebase
+					.firestore()
+					.collection("users")
+					.doc(userId)
+					.get();
+				if (userDoc.exists) {
+					const userData = userDoc.data();
+					setUserAccount(userData);
+					if (userData.Avatar_image) {
+						setAvatarUrl(userData.Avatar_image);
+					} else {
+						console.log("User does not have an avatar image");
+					}
 				} else {
 					console.log("User does not exist");
 				}
-			});
-	});
+			} catch (error) {
+				console.error("Error fetching user data:", error);
+			}
+		};
+
+		fetchUserData();
+	}, []);
 
 	return (
 		<ScrollView>
 			<View style={styles.head}>
 				<Text style={styles.userName}>
-					Hello {userName.FullName} 👋
+					Hello {userAccount.FullName} 👋
 				</Text>
 				<TouchableOpacity
 					onPress={() => navigation.navigate("Profile")}
 				>
 					<Image
 						style={styles.avatar}
-						source={require("../assets/avatar.png")}
+						source={
+							avatarUrl
+								? { uri: avatarUrl }
+								: require("../assets/avatar.png")
+						}
 					/>
 				</TouchableOpacity>
 			</View>
 			<View style={styles.container}>
-				{/* Change password */}
-				<TouchableOpacity
-					onPress={() => {
-						changePassword();
-					}}
-				>
-					<Text>Change Password</Text>
-				</TouchableOpacity>
-
-				{/* Sign out */}
-				<TouchableOpacity
-					onPress={() => {
-						firebase.auth().signOut();
-					}}
-				>
-					<Text>Sign Out</Text>
-				</TouchableOpacity>
 				<Text style={styles.welcomeMessage}>
 					Find your perfect job 🚀
 				</Text>
@@ -229,7 +254,16 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 			<View style={styles.row}>
 				<View style={styles.subrow}>
 					<Text style={styles.boldText}>Popular Jobs</Text>
-					<TouchableOpacity><Text style={styles.showAll} onPress={() => navigation.navigate("ShowAllPopularJob")}>Show all</Text></TouchableOpacity>
+					<TouchableOpacity>
+						<Text
+							style={styles.showAll}
+							onPress={() =>
+								navigation.navigate("ShowAllPopularJob")
+							}
+						>
+							Show all
+						</Text>
+					</TouchableOpacity>
 				</View>
 
 				<View>
@@ -258,7 +292,16 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 
 				<View style={styles.subrow}>
 					<Text style={styles.boldText}>Nearby Jobs</Text>
-					<TouchableOpacity><Text style={styles.showAll} onPress={() => navigation.navigate("ShowAllNearbyJob")}>Show all</Text></TouchableOpacity>
+					<TouchableOpacity>
+						<Text
+							style={styles.showAll}
+							onPress={() =>
+								navigation.navigate("ShowAllNearbyJob")
+							}
+						>
+							Show all
+						</Text>
+					</TouchableOpacity>
 				</View>
 				<View>
 					{nearbyjob.map((company) => (

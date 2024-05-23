@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
 	ScrollView,
@@ -11,6 +11,7 @@ import {
 	Modal,
 	Dimensions,
 	Button,
+	Alert,
 } from "react-native";
 import BackButton from "../buttons/BackButton";
 import { Feather } from "@expo/vector-icons";
@@ -19,10 +20,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import COLORS from "../constants/colors";
 import { useNavigation } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
+import { firebase } from "../configFirebase";
 
 const windowHeight = Dimensions.get("window").height;
 
-const ListExperience = ({ job, company, time, onPress }) => {
+const ListExperience = ({ job, company, start_time, end_time, onPress }) => {
 	return (
 		<TouchableOpacity onPress={onPress}>
 			<View style={styles.item_container}>
@@ -36,7 +38,9 @@ const ListExperience = ({ job, company, time, onPress }) => {
 				<View style={{ flex: 1, flexDirection: "column" }}>
 					<Text style={styles.text}>{job}</Text>
 					<Text style={{ color: COLORS.hidetitle }}>{company}</Text>
-					<Text style={{ color: COLORS.hidetitle }}>{time}</Text>
+					<Text style={{ color: COLORS.hidetitle }}>
+						{start_time} - {end_time}
+					</Text>
 				</View>
 				<Feather name="edit-3" size={20} color={COLORS.maugach} />
 			</View>
@@ -68,6 +72,32 @@ const ListSkill = ({ skill }) => {
 
 const ResumeAndInfo = () => {
 	const navigation = useNavigation();
+
+	const [editing, setEditing] = useState(false);
+	const [content, setContent] = useState("");
+
+	const handleEditPress = () => {
+		setEditing(true);
+	};
+
+	const handleSavePress = async () => {
+		setEditing(false);
+		await updateAboutMyselfInFirestore(content);
+	};
+
+	const updateAboutMyselfInFirestore = async (aboutMyself) => {
+		try {
+			const userId = firebase.auth().currentUser.uid;
+			await firebase
+				.firestore()
+				.collection("users")
+				.doc(userId)
+				.update({ About_myself: aboutMyself });
+		} catch (error) {
+			console.error("Error updating About_myself in Firestore: ", error);
+		}
+	};
+
 	const AddExperience = () => {
 		navigation.navigate("AddExperience");
 	};
@@ -103,12 +133,7 @@ const ResumeAndInfo = () => {
 		}
 	};
 
-	const [skills, setSkills] = useState([
-		"Singing",
-		"Team work",
-		"Communication",
-		"Leader",
-	]);
+	const [skills, setSkills] = useState([]);
 	const [clickCount, setClickCount] = useState({});
 	const handleSkillPress = (skill) => {
 		setClickCount((prevClickCount) => {
@@ -117,10 +142,9 @@ const ResumeAndInfo = () => {
 				[skill]: (prevClickCount[skill] || 0) + 1,
 			};
 			if (newClickCount[skill] === 2) {
-				// Xóa skill khỏi danh sách nếu đã nhấp 2 lần
-				setSkills((prevSkills) =>
-					prevSkills.filter((s) => s !== skill)
-				);
+				const updatedSkills = skills.filter((s) => s !== skill);
+				setSkills(updatedSkills);
+				updateSkillsInFirestore(updatedSkills); // Cập nhật Firestore
 				delete newClickCount[skill]; // Xóa bộ đếm của skill đã bị xóa
 			}
 			return newClickCount;
@@ -130,10 +154,55 @@ const ResumeAndInfo = () => {
 	const [newSkill, setNewSkill] = useState("");
 
 	const addSkill = () => {
-		setSkills([...skills, newSkill]);
+		const updatedSkills = [...skills, newSkill];
+		setSkills(updatedSkills);
 		setNewSkill("");
 		setModalVisible(false);
+		updateSkillsInFirestore(updatedSkills); // Cập nhật Firestore
 	};
+
+	// User Informations
+	const [userAccount, setUserAccount] = useState({});
+
+	const updateSkillsInFirestore = async (updatedSkills) => {
+		try {
+			const userId = firebase.auth().currentUser.uid;
+			await firebase
+				.firestore()
+				.collection("users")
+				.doc(userId)
+				.update({ Skills: updatedSkills });
+		} catch (error) {
+			console.error("Error updating skills in Firestore: ", error);
+		}
+	};
+
+	useEffect(() => {
+		const fetchUserData = async () => {
+			try {
+				const userDoc = await firebase
+					.firestore()
+					.collection("users")
+					.doc(firebase.auth().currentUser.uid)
+					.get();
+
+				if (userDoc.exists) {
+					const userData = userDoc.data();
+					setUserAccount(userData);
+					if (userData.Skills) {
+						setSkills(userData.Skills);
+					}
+					setContent(userData.About_myself || "");
+				} else {
+					console.log("User does not exist");
+				}
+			} catch (error) {
+				console.error("Error fetching user data: ", error);
+			}
+		};
+
+		fetchUserData();
+	}, []);
 
 	return (
 		<SafeAreaView>
@@ -150,7 +219,7 @@ const ResumeAndInfo = () => {
 				</Text>
 			</View>
 			<ScrollView>
-				<TouchableOpacity
+				{/* <TouchableOpacity
 					style={styles.resume_container}
 					onPress={handleDocumentSelection}
 				>
@@ -189,7 +258,55 @@ const ResumeAndInfo = () => {
 							Edit resume
 						</Text>
 					</View>
-				</TouchableOpacity>
+				</TouchableOpacity> */}
+
+				<View style={styles.resume_container}>
+					<View
+						style={{ flexDirection: "row", justifyItems: "center" }}
+					>
+						<Text
+							style={{ flex: 1, fontSize: 18, marginBottom: 10 }}
+						>
+							About me (Click on the area below to edit)
+						</Text>
+					</View>
+					{editing ? (
+						<View>
+							<TextInput
+								style={{ fontSize: 15 }}
+								multiline
+								value={content}
+								onChangeText={setContent}
+								placeholder="Please introduce yourself"
+							/>
+							<TouchableOpacity onPress={handleSavePress}>
+								<Text style={{ color: COLORS.maugach }}>
+									Save
+								</Text>
+							</TouchableOpacity>
+						</View>
+					) : (
+						<TouchableOpacity onPress={handleEditPress}>
+							<View
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+								}}
+							>
+								<Text
+									style={{
+										flex: 1,
+										fontSize: 15,
+										marginBottom: 10,
+										color: COLORS.hidetitle,
+									}}
+								>
+									{content}
+								</Text>
+							</View>
+						</TouchableOpacity>
+					)}
+				</View>
 
 				<View style={styles.resume_container}>
 					<View
@@ -211,13 +328,8 @@ const ResumeAndInfo = () => {
 						<ListExperience
 							job="UX/UI"
 							company="Facebook"
-							time="Jan 2018 - 3 year 8 month"
-							onPress={ChangeExperience}
-						/>
-						<ListExperience
-							job="UX/UI"
-							company="Facebook"
-							time="Jan 2018 - 3 year 8 month"
+							start_time="2 Jan 2018"
+							end_time="2 Jan 2018"
 							onPress={ChangeExperience}
 						/>
 					</View>
@@ -229,7 +341,7 @@ const ResumeAndInfo = () => {
 						<Text
 							style={{ flex: 1, fontSize: 18, marginBottom: 10 }}
 						>
-							Skill
+							Skills
 						</Text>
 						<MaterialIcons
 							name="add"
@@ -283,7 +395,7 @@ const ResumeAndInfo = () => {
 											onPress={addSkill}
 										/>
 									</View>
-									<View style={{ width: 70 }}>
+									<View style={{ width: 80 }}>
 										<Button
 											color={COLORS.maugach}
 											title="Cancel"

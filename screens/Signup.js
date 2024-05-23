@@ -29,20 +29,19 @@ const Signup = ({ navigation }) => {
 	const [applied, setApplied] = useState(0);
 	const [currentCv, setCurrentCv] = useState("");
 	const [aboutMyself, setAboutMyself] = useState("");
-	const [experience, setExperience] = useState({
-		company: "",
-		jobName: "",
-		startDate: "",
-		endDate: "",
-	});
+	const [experience, setExperience] = useState([
+		{ company: "", jobName: "", startDate: "", endDate: "" },
+	]);
 	const [skills, setSkills] = useState([]);
-	const [favoriteJob, setFavoriteJob] = useState({
-		logoImage: "",
-		company: "",
-		jobName: "",
-		jobTypes: "",
-		salary: "",
-	});
+	const [favoriteJob, setFavoriteJob] = useState([
+		{
+			logoImage: "",
+			company: "",
+			jobName: "",
+			jobTypes: "",
+			salary: "",
+		},
+	]);
 
 	const validateInputs = () => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
