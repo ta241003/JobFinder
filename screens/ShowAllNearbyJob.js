@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
 	StyleSheet,
@@ -10,50 +11,7 @@ import {
 import BackButton from "../buttons/BackButton";
 import { AntDesign } from "@expo/vector-icons";
 import styles from "./welcome.style";
-
-const nearbyjob = [
-	{
-		id: 1,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "React-native Developer",
-		location: "Hai Chau, Da Nang",
-		companyinfo: "abcde",
-		description:
-			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
-	},
-	{
-		id: 2,
-		name: "Facebook",
-		logo: require("../assets/facebook.png"),
-		job: "Load Product Manager",
-		location: "Hai Chau, Da Nang",
-		companyinfo: "abcde",
-		description:
-			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
-	},
-	{
-		id: 3,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "Tech Leader",
-		location: "Hai Chau, Da Nang",
-		companyinfo: "abcde",
-		description:
-			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
-	},
-	{
-		id: 4,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "Tech Leader",
-		location: "Hai Chau, Da Nang",
-		companyinfo: "abcde",
-		description:
-			"Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có cơ hội làm việc trong một môi trường sáng tạo, năng động và đóng góp trực tiếp vào việc phát triển sản phẩm của chúng tôi.",
-	},
-	// Add more company here...
-];
+import { db } from "../configFirebase";
 
 const Nearby_Job = ({ company, onPress }) => {
 	const truncateDescription = (text, maxLength) => {
@@ -77,14 +35,17 @@ const Nearby_Job = ({ company, onPress }) => {
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.nearby_job_container}>
 			<View style={{ alignItems: "center", justifyContent: "center" }}>
-				<Image source={company.logo} style={styles.logo} />
+				<Image
+					source={{ uri: company.image_company }}
+					style={styles.logo}
+				/>
 			</View>
 			<View style={styles.textContainer}>
-				<Text style={styles.company}>{company.name}</Text>
-				<Text style={styles.jobname}>{company.job}</Text>
+				<Text style={styles.company}>{company.company_name}</Text>
+				<Text style={styles.jobname}>{company.job_name}</Text>
 				<Text style={styles.location}>{company.location}</Text>
 				<Text style={styles.describe}>
-					{truncateDescription(company.description, 110)}
+					{truncateDescription(company.job_description, 110)}
 				</Text>
 			</View>
 		</TouchableOpacity>
@@ -92,12 +53,31 @@ const Nearby_Job = ({ company, onPress }) => {
 };
 
 const ShowAllNearbyJob = ({ navigation }) => {
+	const [jobs, setJobs] = useState([]);
+
+	useEffect(() => {
+		const fetchJobs = async () => {
+			try {
+				const jobsCollection = await db.collection("jobs").get();
+				const jobsList = jobsCollection.docs.map((doc) => ({
+					id: doc.id,
+					...doc.data(),
+				}));
+				setJobs(jobsList);
+			} catch (error) {
+				console.error("Error fetching jobs: ", error);
+			}
+		};
+
+		fetchJobs();
+	}, []);
+
 	return (
 		<SafeAreaView>
 			<ScrollView>
 				<BackButton></BackButton>
 				<View style={{ marginHorizontal: 20, marginVertical: 30 }}>
-					{nearbyjob.map((company) => (
+					{jobs.map((company) => (
 						<Nearby_Job
 							key={company.id}
 							company={company}

@@ -27,7 +27,7 @@ const UploadCVSuccess = ({ navigation, route }) => {
 					>
 						<Image
 							style={styles.avatar}
-							source={require("../assets/ig.png")}
+							source={{uri : company.image_company}}
 						></Image>
 					</View>
 					<View
@@ -35,6 +35,7 @@ const UploadCVSuccess = ({ navigation, route }) => {
 							justifyContent: "center",
 							alignItems: "center",
 							marginTop: 15,
+							marginHorizontal: 30,
 						}}
 					>
 						<Text
@@ -44,12 +45,13 @@ const UploadCVSuccess = ({ navigation, route }) => {
 								fontSize: 18,
 							}}
 						>
-							{company.job}
+							{company.job_name}
 						</Text>
-						<Text style={{ marginBottom: 3 }}>
-							{company.description}
-						</Text>
-						<Text>{company.name}</Text>
+						<Text style={{ marginBottom: 5 }}>{company.company_name}</Text>
+						<Text style={{ marginBottom: 5 }}>Job Type: {company.job_type}</Text>
+						<Text style={{ marginBottom: 5 }}>Salary: {company.salary} milions</Text>
+						<Text style={{ marginBottom: 5, textAlign: 'center'}}>Address: {company.company_info}</Text>
+						<Text >Deadline for submittion: {company.deadline}</Text>
 					</View>
 				</View>
 				<View style={styles.upload_container}>
