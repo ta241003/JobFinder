@@ -2,54 +2,35 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {StyleSheet, View, TouchableOpacity, Image, Text, ScrollView} from "react-native";
 import BackButton from "../buttons/BackButton";
 import styles from "./welcome.style";
-
-const popularjob = [
-	{
-		id: 1,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "React-native Developer",
-        location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-	},
-	{
-		id: 2,
-		name: "Facebook",
-		logo: require("../assets/facebook.png"),
-		job: "Load Product Manager",
-		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-	},
-	{
-		id: 3,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "Tech Leader",
-		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-	},
-	{
-		id: 4,
-		name: "Google",
-		logo: require("../assets/google.png"),
-		job: "Tech Leader",
-		location: "Hai Chau, Da Nang",
-		description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-	},
-	// Add more company here...
-];
+import React, { useEffect, useState } from "react";
+import { db } from "../configFirebase"; 
 
 const Popular_Job = ({ company, onPress }) => {
+	const truncateDescription = (text, maxLength) => {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        // Cắt chuỗi đến maxLength ký tự
+        let truncatedText = text.substr(0, maxLength);
+        // Đảm bảo cắt chuỗi tại khoảng trắng gần nhất để tránh cắt giữa từ
+        truncatedText = truncatedText.substr(0, Math.min(truncatedText.length, truncatedText.lastIndexOf(" ")));
+        // Thêm dấu ... nếu cần
+        if (truncatedText.length < text.length) {
+            truncatedText += '...';
+        }
+        return truncatedText;
+    };
+
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.nearby_job_container}>
 			<View style={{ alignItems: "center", justifyContent: "center" }}>
-				<Image source={company.logo} style={styles.logo} />
+				<Image source={{uri : company.image_company}} style={styles.logo} />
 			</View>
 			<View style={styles.textContainer}>
-				<Text style={styles.company}>{company.name}</Text>
-				<Text style={styles.jobname}>{company.job}</Text>
+				<Text style={styles.company}>{company.company_name}</Text>
+				<Text style={styles.jobname}>{company.job_name}</Text>
 				<Text style={styles.location}>{company.location}</Text>
-                <Text style={styles.describe}>{company.description}</Text>
+                <Text style={styles.describe}>{truncateDescription(company.job_description, 110)}</Text>
 			</View>
 
 		</TouchableOpacity>
@@ -57,12 +38,28 @@ const Popular_Job = ({ company, onPress }) => {
 };
 
 const ShowAllPopularJob = ({navigation}) => {
+	const [jobs, setJobs] = useState([]);
+
+	useEffect(() =>{
+		const fetchJobs = async () => {
+			try {
+			  const jobsCollection = await db.collection('jobs').get();
+			  const jobsList = jobsCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+			  setJobs(jobsList);
+			} catch (error) {
+			  console.error("Error fetching jobs: ", error);
+			}
+		};
+	  
+		fetchJobs();
+	}, []);
+	
     return(
         <SafeAreaView>
             <ScrollView>
 				<BackButton></BackButton>
 				<View style={{marginHorizontal:20, marginVertical:30}}>
-					{popularjob.map((company) => (
+					{jobs.map((company) => (
 						<Popular_Job
 							key={company.id}
 							company={company}

@@ -14,141 +14,188 @@ import COLORS from "../constants/colors";
 import { AntDesign } from "@expo/vector-icons";
 
 const DescribeJob = ({ navigation, route }) => {
-	const [selectedTab, setSelectedTab] = useState("Company");
+	const [selectedTab, setSelectedTab] = useState("Description");
 
 	const handleTabPress = (tab) => {
 		setSelectedTab(tab);
 	};
 
 	const { company } = route.params;
+
+  	const lines_job_description = company.job_description.split('-');
+  	const lines_requirements = company.requirements.split('-');
+  	const lines_benefit = company.benefit.split('-');
+
 	return (
 		<SafeAreaView>
-			<BackButton></BackButton>
-			<View
-				style={{
-					justifyContent: "center",
-					alignItems: "center",
-					marginTop: 30,
-				}}
-			>
-				<Image
-					style={styles.avatar}
-					source={require("../assets/ig.png")}
-				></Image>
-			</View>
-			<View
-				style={{
-					justifyContent: "center",
-					alignItems: "center",
-					marginTop: 15,
-				}}
-			>
-				<Text
-					style={{ marginBottom: 3, fontWeight: 800, fontSize: 18 }}
-				>
-					{company.job}
-				</Text>
-				<Text style={{ marginBottom: 3 }}>{company.location}</Text>
-				<Text>{company.name}</Text>
-			</View>
-			<View
-				style={{ flexDirection: "row", marginTop: 20, marginLeft: 30 }}
-			>
-				<TouchableOpacity onPress={() => handleTabPress("Company")}>
-					<View
-						style={[
-							styles.choose_button,
-							selectedTab === "Company" && styles.selected,
-						]}
-					>
-						<Text
-							style={[
-								selectedTab === "Company" &&
-									styles.selected_text,
-							]}
-						>
-							Company
-						</Text>
-					</View>
-				</TouchableOpacity>
-				<TouchableOpacity onPress={() => handleTabPress("Description")}>
-					<View
-						style={[
-							styles.choose_button,
-							selectedTab === "Description" && styles.selected,
-						]}
-					>
-						<Text
-							style={[
-								selectedTab === "Description" &&
-									styles.selected_text,
-							]}
-						>
-							Description
-						</Text>
-					</View>
-				</TouchableOpacity>
-			</View>
-
-			{selectedTab === "Company" && (
+			<ScrollView>
+				<BackButton></BackButton>
 				<View
-					style={[
-						styles.content,
-						selectedTab === "Company" && styles.contentVisible,
-					]}
-				>
-					<Text>
-						Instagram is an American photo and video sharing social
-						networking service created by Kevin Systrom and Mike
-						Krieger. In April 2012, Facebook acquired the service
-						for approximately $1 billion in cash and stock. The app
-						allows users to upload media that can be edited with
-						filters and sorted by hashtags and geotagging. Posts can
-						be shared publicly or with pre-approved followers. Users
-						can browse other users content by tags and location and
-						see trending content. Users can like photos and follow
-						other users to add their content to their personal feed.
-					</Text>
-				</View>
-			)}
-
-			{selectedTab === "Description" && (
-				<View
-					style={[
-						styles.content,
-						selectedTab === "Description" && styles.contentVisible,
-					]}
-				>
-					<Text>{company.description}</Text>
-				</View>
-			)}
-
-			<View
-				style={{
-					flexDirection: "row",
-					marginLeft: 30,
-					marginRight: 30,
-				}}
-			>
-				<View style={styles.tym_area}>
-					<AntDesign name="hearto" size={30} color={COLORS.maugach} />
-				</View>
-				<TouchableOpacity
 					style={{
-						backgroundColor: COLORS.maugach,
-						marginLeft: 10,
-						borderRadius: 10,
-						flex: 1,
 						justifyContent: "center",
 						alignItems: "center",
+						marginTop: 30,
 					}}
-					onPress={() => navigation.navigate("UploadCV", { company })}
 				>
-					<Text style={{ color: "#fff", fontSize: 18 }}>
-						Apply for jobs
+					<Image
+						style={styles.avatar}
+						source={{uri : company.image_company}}
+					></Image>
+				</View>
+				<View
+					style={{
+						justifyContent: "center",
+						alignItems: "center",
+						marginTop: 15,
+						marginHorizontal: 30,
+					}}
+				>
+					<Text
+						style={{ marginBottom: 3, fontWeight: 800, fontSize: 18 }}
+					>
+						{company.job_name}
 					</Text>
-				</TouchableOpacity>
-			</View>
+					<Text style={{ marginBottom: 5 }}>{company.company_name}</Text>
+					<Text style={{ marginBottom: 5 }}>Job Type: {company.job_type}</Text>
+					<Text style={{ marginBottom: 5 }}>Salary: {company.salary} milions</Text>
+					<Text style={{ marginBottom: 5,  textAlign: 'center'}}>Address: {company.company_info}</Text>
+					<Text >Deadline for submittion: {company.deadline}</Text>
+			
+				</View>
+				<View
+					style={{ flexDirection: "row", marginTop: 20, marginLeft: 30 }}
+				>
+					<TouchableOpacity onPress={() => handleTabPress("Description")}>
+						<View
+							style={[
+								styles.choose_button,
+								selectedTab === "Description" && styles.selected,
+							]}
+						>
+							<Text
+								style={[
+									selectedTab === "Description" &&
+										styles.selected_text,
+								]}
+							>
+							Description
+							</Text>
+						</View>
+					</TouchableOpacity>
+					<TouchableOpacity onPress={() => handleTabPress("Requirements")}>
+						<View
+							style={[
+								styles.choose_button,
+								selectedTab === "Requirements" && styles.selected,
+							]}
+						>
+							<Text
+								style={[
+									selectedTab === "Requirements" &&
+										styles.selected_text,
+								]}
+							>
+								Requirements
+							</Text>
+						</View>
+					</TouchableOpacity>
+					<TouchableOpacity onPress={() => handleTabPress("Benefits")}>
+						<View
+							style={[
+								styles.choose_button,
+								selectedTab === "Benefits" && styles.selected,
+							]}
+						>
+							<Text
+								style={[
+									selectedTab === "Benefits" &&
+										styles.selected_text,
+								]}
+							>
+								Benefits
+							</Text>
+						</View>
+					</TouchableOpacity>
+				</View>
+
+				{selectedTab === "Description" && (
+					<View
+						style={[
+							styles.content,
+							selectedTab === "Description" && styles.contentVisible,
+						]}
+					>
+						<ScrollView nestedScrollEnabled={true}>
+							{lines_job_description.slice(1).map((line, index) => (
+							<Text key={index+1}>
+								{line.startsWith(' ') ? '\u2022 ' + line.trim() : line.trim()}
+							</Text>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
+				{selectedTab === "Requirements" && (
+					<View
+						style={[
+							styles.content,
+							selectedTab === "Requirements" && styles.contentVisible,
+						]}
+					>
+						<ScrollView nestedScrollEnabled={true}>
+							{lines_requirements.slice(1).map((line, index) => (
+							<Text key={index+1}>
+								{line.startsWith(' ') ? '\u2022 ' + line.trim() : line.trim()}
+							</Text>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
+				{selectedTab === "Benefits" && (
+					<View
+						style={[
+							styles.content,
+							selectedTab === "Benefits" && styles.contentVisible,
+						]}
+					>
+						<ScrollView nestedScrollEnabled={true}>
+							{lines_benefit.slice(1).map((line, index) => (
+							<Text key={index+1}>
+								{line.startsWith(' ') ? '\u2022 ' + line.trim() : line.trim()}
+							</Text>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
+				<View
+					style={{
+						flexDirection: "row",
+						marginHorizontal: 30,
+						marginBottom: 20,
+					}}
+				>
+					<View style={styles.tym_area}>
+						<AntDesign name="hearto" size={30} color={COLORS.maugach} />
+					</View>
+					<TouchableOpacity
+						style={{
+							backgroundColor: COLORS.maugach,
+							marginLeft: 10,
+							borderRadius: 10,
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+						onPress={() => navigation.navigate("UploadCV", { company })}
+					>
+						<Text style={{ color: "#fff", fontSize: 18 }}>
+							Apply for jobs
+						</Text>
+					</TouchableOpacity>
+				</View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 };
@@ -183,10 +230,10 @@ const styles = StyleSheet.create({
 		margin: 30,
 		marginTop: 20,
 		marginBottom: 25,
-		display: "none",
+		display:"none",
 	},
 	contentVisible: {
-		display: "flex",
+		display:'flex',
 	},
 	tym_area: {
 		borderWidth: 2,
