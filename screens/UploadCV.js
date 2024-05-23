@@ -90,11 +90,12 @@ const UploadCV = ({ navigation, route }) => {
 							justifyContent: "center",
 							alignItems: "center",
 							marginTop: 30,
+							marginHorizontal: 30,
 						}}
 					>
 						<Image
 							style={styles.avatar}
-							source={require("../assets/ig.png")}
+							source={{uri : company.image_company}}
 						></Image>
 					</View>
 					<View
@@ -102,6 +103,7 @@ const UploadCV = ({ navigation, route }) => {
 							justifyContent: "center",
 							alignItems: "center",
 							marginTop: 15,
+							marginHorizontal: 30,
 						}}
 					>
 						<Text
@@ -111,12 +113,13 @@ const UploadCV = ({ navigation, route }) => {
 								fontSize: 18,
 							}}
 						>
-							{company.job}
+							{company.job_name}
 						</Text>
-						<Text style={{ marginBottom: 3 }}>
-							{company.location}
-						</Text>
-						<Text>{company.name}</Text>
+						<Text style={{ marginBottom: 5 }}>{company.company_name}</Text>
+						<Text style={{ marginBottom: 5 }}>Job Type: {company.job_type}</Text>
+						<Text style={{ marginBottom: 5 }}>Salary: {company.salary} milions</Text>
+						<Text style={{ marginBottom: 5, textAlign: 'center'}}>Address: {company.company_info}</Text>
+						<Text >Deadline for submittion: {company.deadline}</Text>
 					</View>
 				</View>
 				<View style={{ marginLeft: 30, marginTop: 40 }}>
@@ -183,7 +186,7 @@ const UploadCV = ({ navigation, route }) => {
 					>
 						<TextInput
 							multiline={true}
-							placeholder="Explain why you are the right person for this job"
+							placeholder="Write a few words to send to the employer"
 							value={description}
 							onChangeText={(text) => setDescription(text)}
 						></TextInput>
@@ -195,8 +198,8 @@ const UploadCV = ({ navigation, route }) => {
 							backgroundColor: description
 								? COLORS.maugach
 								: "#d3d3d3",
-							marginLeft: 30,
-							marginRight: 30,
+							marginHorizontal:30,
+							marginBottom:20,
 							height: 50,
 							borderRadius: 20,
 							flex: 1,

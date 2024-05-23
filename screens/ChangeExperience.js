@@ -7,7 +7,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import COLORS from "../constants/colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const ChangeExperience = () => {
+const ChangeExperience = ({route}) => {
+    const {experience} = route.params
     const [startDated, setstartDated] = useState(new Date());
     const [showStartDatePicker, setShowStartDatePicker] = useState(false);
     const [displayStartDate, setDisplayStartDate] = useState('');
@@ -46,24 +47,24 @@ const ChangeExperience = () => {
             </View>
             <View style={styles.container}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Job Name</Text>
+                    <Text style={styles.title}>Job name</Text>
                     <View style={styles.inputContainer}>
-                        <TextInput style={styles.input}/>
+                        <TextInput style={styles.input} placeholder={experience.job} placeholderTextColor="black"/>
                     </View>
                 </View>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Company Name</Text>
+                    <Text style={styles.title}>Company name</Text>
                     <View style={styles.inputContainer}>
-                        <TextInput style={styles.input}/>
+                        <TextInput style={styles.input} placeholder={experience.company} placeholderTextColor="black"/>
                     </View>
                 </View>
                 <View style={{flexDirection:'row', marginTop:30}}>
                     <TouchableOpacity style={{flex:1, marginRight:10}} onPress={onStartDatePickerPress}>
                         <View>
-                            <Text style={styles.title}>Start date</Text>
+                            <Text style={styles.title}>Start time</Text>
                             <View style={styles.inputContainer}>
                                 <View>
-                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10 }}>{displayStartDate || 'DD/MM/YYYY'}</Text>
+                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10 }}>{displayStartDate || experience.start_time}</Text>
                                 </View>
                             </View>
                         </View>
@@ -79,10 +80,10 @@ const ChangeExperience = () => {
                     />)}
                     <TouchableOpacity style={{flex:1, marginLeft:10}} onPress={onEndDatePickerPress}>
                         <View>
-                            <Text style={styles.title}>End date</Text>
+                            <Text style={styles.title}>End time</Text>
                             <View style={styles.inputContainer}>
                                 <View>
-                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10}}>{displayEndDate || 'DD/MM/YYYY'}</Text>
+                                    <Text style={{ fontSize: 15, paddingBottom: 3, paddingTop: 5, marginLeft: 10}}>{displayEndDate || experience.end_time}</Text>
                                 </View>
                             </View>
                         </View>

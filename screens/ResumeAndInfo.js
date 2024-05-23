@@ -102,10 +102,6 @@ const ResumeAndInfo = () => {
 		navigation.navigate("AddExperience");
 	};
 
-	const ChangeExperience = () => {
-		navigation.navigate("ChangeExperience");
-	};
-
 	const [modalVisible, setModalVisible] = useState(false);
 
 	const [cvFile, setCvFile] = useState(null);
@@ -203,6 +199,13 @@ const ResumeAndInfo = () => {
 
 		fetchUserData();
 	}, []);
+
+	const experience = {
+		job: "UX/UI",
+		company: "Facebook",
+		start_time: "2 Jan 2018",
+		end_time: "2 Jan 2018"
+	};
 
 	return (
 		<SafeAreaView>
@@ -326,11 +329,11 @@ const ResumeAndInfo = () => {
 					</View>
 					<View style={styles.listExperience}>
 						<ListExperience
-							job="UX/UI"
-							company="Facebook"
-							start_time="2 Jan 2018"
-							end_time="2 Jan 2018"
-							onPress={ChangeExperience}
+							job={experience.job}
+							company={experience.company}
+							start_time={experience.start_time}
+							end_time={experience.end_time}
+							onPress={() => navigation.navigate("ChangeExperience", {experience})}
 						/>
 					</View>
 				</View>

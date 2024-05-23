@@ -125,8 +125,9 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	companyLogo: {
-		width: 50,
-		height: 50,
+		width: '100%',
+		height: "100%",
+		borderRadius: 10,
 	},
 	companyInfo: {
 		marginTop: 10,
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
 		width: 70,
 		height: 70,
 		marginRight: 20,
-		borderRadius: 50,
+		borderRadius: 10,
 	},
 	textContainer: {
 		flex: 1,
