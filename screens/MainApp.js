@@ -30,6 +30,7 @@ import ConfirmEmail from "./ConfirmEmail";
 import ConfirmPassword from "./ConfirmPassword";
 import ShowAllPopularJob from "./ShowAllPopularJob";
 import ShowAllNearbyJob from "./ShowAllNearbyJob";
+import SearchResultFromHomePage from "./SearchResultFromHomePage";
 
 enableScreens();
 
@@ -66,7 +67,7 @@ const HomeStack = () => (
 		screenOptions={() => ({ headerShown: false })}
 	>
 		<Stack.Screen name="HomeDetails" component={HomePage} />
-		<Stack.Screen name="SearchPage" component={SearchPage} />
+		<Stack.Screen name="SearchResultFromHomePage" component={SearchResultFromHomePage} />
 		<Stack.Screen name="DescribeJob" component={DescribeJob} />
 		<Stack.Screen name="UploadCV" component={UploadCV} />
 		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
@@ -77,13 +78,27 @@ const HomeStack = () => (
 
 const SavedJobStack = () => (
 	<Stack.Navigator
-		initialRouteName="SavedJob"
+		initialRouteName="Favorite"
 		screenOptions={() => ({ headerShown: false })}
 	>
 		<Stack.Screen name="SavedJobDetails" component={SavedJob} />
 		<Stack.Screen name="DescribeJob" component={DescribeJob}/>
 		<Stack.Screen name="UploadCV" component={UploadCV} />
 		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
+		<Stack.Screen name="HomeDetails" component={HomePage} />
+	</Stack.Navigator>
+);
+
+const SearchPageStack = () => (
+	<Stack.Navigator
+		initialRouteName="Favorite"
+		screenOptions={() => ({ headerShown: false })}
+	>
+		<Stack.Screen name="SearchPageDetails" component={SearchPage} />
+		<Stack.Screen name="DescribeJob" component={DescribeJob}/>
+		<Stack.Screen name="UploadCV" component={UploadCV} />
+		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
+		<Stack.Screen name="HomeDetails" component={HomePage} />
 	</Stack.Navigator>
 );
 
@@ -146,7 +161,19 @@ const MainApp = () => {
 					},
 				})}
 			>
-				<Tab.Screen name="Search" component={SearchPage} />
+				<Tab.Screen 
+					name="Search" 
+					component={SearchPageStack} 
+					listeners={({ navigation }) => ({
+						tabPress: e => {
+						  // Prevent default action
+						  e.preventDefault();
+						  
+						  // Reset the stack to the initial route
+						  navigation.navigate("Search");
+						},
+					})} 
+				/>
 				<Tab.Screen 
 					name="Favorite" 
 					component={SavedJobStack}
@@ -156,10 +183,7 @@ const MainApp = () => {
 						  e.preventDefault();
 						  
 						  // Reset the stack to the initial route
-						  navigation.reset({
-							index: 0,
-							routes: [{ name: 'Favorite' }],
-						  });
+						  navigation.navigate("Favorite");
 						},
 					  })} 
 				/>

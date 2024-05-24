@@ -78,6 +78,7 @@ const EmptyNotify = () => {
         <TouchableOpacity onPress={handleBack} style={{top: 20, left: 20, zIndex: 1 }}>
           <Ionicons name="chevron-back" size={24} color="black" />
         </TouchableOpacity>
+				<Text style={{textAlign:'center', fontSize:20, marginTop:-5}}>Notify</Text>
         <View style={{marginTop: 30}}>
           {notify.length > 0 ? (
             notify.map((notifies, index) => <Notify key={index} notifies={notifies} />)

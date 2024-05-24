@@ -59,6 +59,7 @@ const ShowAllPopularJob = ({navigation}) => {
         <SafeAreaView>
             <ScrollView>
 				<BackButton></BackButton>
+				<Text style={{textAlign:'center', fontSize:20, marginTop:-5}}>Popular Job</Text>
 				<View style={{marginHorizontal:20, marginVertical:30}}>
 					{jobs.map((company) => (
 						<Popular_Job
