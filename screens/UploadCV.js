@@ -235,6 +235,7 @@ const UploadCV = ({ navigation, route }) => {
 							Candidate_fullName: userData.FullName,
 							company_email: company.company_email,
 							company_name: company.company_name,
+							company_image: company.image_company,
 							job_name: company.job_name,
 							job_type: company.job_type,
 							company_info: company.company_info,

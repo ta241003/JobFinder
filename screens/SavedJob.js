@@ -118,6 +118,9 @@ const SavedJob = ({ navigation, route }) => {
 
 			await userRef.update({ favoriteJobIds: favoriteJobIds }); // Cập nhật dữ liệu trong Firestore
 
+			// Cập nhật trạng thái userFavorite để giao diện được cập nhật ngay lập tức
+			setUserFavorite(favoriteJobIds);
+
 			console.log("Favorite job deleted to Firestore successfully!");
 			NotifyUnFavoriteJob(jobId);
 		} catch (error) {
