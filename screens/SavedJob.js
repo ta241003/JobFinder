@@ -67,41 +67,44 @@ const SavedJob = ({ navigation, route }) => {
 	const [userFavorite, setUserFavorite] = useState([]);
 
 	useEffect(() => {
-		const fetchJobs = async () => {
-			try {
-				const jobsCollection = await db.collection("jobs").get();
-				const jobsList = jobsCollection.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data(),
-				}));
-				setJobs(jobsList);
-			} catch (error) {
-				console.error("Error fetching jobs: ", error);
-			}
-		};
+		const unsubscribe = navigation.addListener("focus", () => {
+			fetchJobs();
+			fetchUserData(); // Hàm lấy dữ liệu từ Firestore
+		});
+		return unsubscribe;
+	}, [navigation]);
 
-		fetchJobs();
-		const fetchUserData = async () => {
-			try {
-				const userId = firebase.auth().currentUser.uid;
-				const userDoc = await firebase
-					.firestore()
-					.collection("users")
-					.doc(userId)
-					.get();
-				if (userDoc.exists) {
-					const userData = userDoc.data();
-					setUserFavorite(userData.favoriteJobIds);
-				} else {
-					console.log("User does not exist");
-				}
-			} catch (error) {
-				console.error("Error fetching user data:", error);
-			}
-		};
+	const fetchJobs = async () => {
+		try {
+			const jobsCollection = await db.collection("jobs").get();
+			const jobsList = jobsCollection.docs.map((doc) => ({
+				id: doc.id,
+				...doc.data(),
+			}));
+			setJobs(jobsList);
+		} catch (error) {
+			console.error("Error fetching jobs: ", error);
+		}
+	};
 
-		fetchUserData();
-	}, []);
+	const fetchUserData = async () => {
+		try {
+			const userId = firebase.auth().currentUser.uid;
+			const userDoc = await firebase
+				.firestore()
+				.collection("users")
+				.doc(userId)
+				.get();
+			if (userDoc.exists) {
+				const userData = userDoc.data();
+				setUserFavorite(userData.favoriteJobIds);
+			} else {
+				console.log("User does not exist");
+			}
+		} catch (error) {
+			console.error("Error fetching user data:", error);
+		}
+	};
 
 	const removeFavoriteJob = async (jobId) => {
 		try {

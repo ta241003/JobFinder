@@ -30,6 +30,17 @@ const UploadCV = ({ navigation, route }) => {
 	const notificationListener = useRef();
 	const responseListener = useRef();
 
+	const setTimeNow = () => {
+		const now = new Date();
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const day = now.getDate().toString().padStart(2, '0');
+		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Tháng tính từ 0-11, nên cần +1
+		const year = now.getFullYear();
+		const formattedTime = `${hours}:${minutes} ${day} thg ${month}, ${year}`;
+		return formattedTime;
+	};
+
 	useEffect(() => {
 		async function checkAvailability() {
 			const isMailAvailable = await MailComposer.isAvailableAsync();
@@ -156,6 +167,8 @@ const UploadCV = ({ navigation, route }) => {
 				await updateAppliedField();
 				saveJobApplication();
 				sendNotification();
+				const notify_apllied = "You applied successfully job:";
+                saveNotify(notify_apllied, company.job_name, company.company_name, company.image_company, setTimeNow());
 				navigation.navigate("UploadCVSuccess", { company, cvFile });
 			} else {
 				Alert.alert("Failed to send email");
@@ -252,6 +265,48 @@ const UploadCV = ({ navigation, route }) => {
 			}
 		} catch (error) {
 			console.error("Error saving job application: ", error);
+		}
+	};
+
+	const saveNotify = async (
+        notifyString,
+		jobName,
+		companyName,
+		imageCompany,
+		currentTime
+	) => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
+			const userId = currentUser.uid; // Lấy ID của user hiện tại
+
+			// Tạo đối tượng Experience
+			const notify = {
+                notifyString: notifyString,
+				jobName: jobName,
+				companyName: companyName,
+				imageCompany: imageCompany,
+				currentTime: currentTime
+			};
+
+			// Lấy dữ liệu hiện tại của user từ Firestore
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+
+			if (userDoc.exists) {
+				// Nếu user đã tồn tại trong Firestore
+				const userData = userDoc.data();
+				let notifies = userData.notifies || []; // Nếu đã có dữ liệu về kinh nghiệm, sử dụng nó, nếu không, tạo một mảng mới
+				notifies.push(notify); // Thêm thông tin kinh nghiệm mới vào mảng
+				await userRef.update({ notifies: notifies }); // Cập nhật dữ liệu trong Firestore
+			} else {
+				// Nếu user chưa tồn tại trong Firestore
+				await userRef.set({ notifies: [notify] }); // Tạo một user mới với thông tin kinh nghiệm
+			}
+
+			console.log("Notify added to Firestore successfully!");
+		} catch (error) {
+			console.error("Error adding notify to Firestore: ", error);
 		}
 	};
 

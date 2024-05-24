@@ -28,7 +28,18 @@ const DescribeJob = ({ navigation, route }) => {
 	const lines_requirements = company.requirements.split("-");
 	const lines_benefit = company.benefit.split("-");
 
-	const saveFavoriteJob = async (jobId) => {
+	const setTimeNow = () => {
+		const now = new Date();
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const day = now.getDate().toString().padStart(2, '0');
+		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Tháng tính từ 0-11, nên cần +1
+		const year = now.getFullYear();
+		const formattedTime = `${hours}:${minutes} ${day} thg ${month}, ${year}`;
+		return formattedTime;
+	};
+
+	const saveFavoriteJob = async (jobId, currentTime) => {
 		try {
 			const db = firebase.firestore();
 			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
@@ -48,9 +59,13 @@ const DescribeJob = ({ navigation, route }) => {
 						(id) => id !== jobId.id
 					);
 					NotifyUnFavoriteJob(jobId);
+                    const notify_unlike = "You have unfavorited Job:";
+                    saveNotify(notify_unlike, jobId.job_name, jobId.company_name, jobId.image_company, currentTime);
 				} else {
 					favoriteJobIds.push(jobId.id);
 					NotifyFavoriteJob(jobId);
+                    const notify_like = "You like Job:";
+                    saveNotify(notify_like, jobId.job_name, jobId.company_name, jobId.image_company, currentTime);
 				} // Thêm jobId vào mảng nếu chưa tồn tại
 
 				await userRef.update({ favoriteJobIds: favoriteJobIds }); // Cập nhật dữ liệu trong Firestore
@@ -77,12 +92,13 @@ const DescribeJob = ({ navigation, route }) => {
 	}, [company.id]); // Chạy lại effect khi id của công việc thay đổi
 
 	const toggleFavorite = async () => {
+		const formattedTime = setTimeNow();
 		if (isFavorite) {
 			// Nếu công việc đã được yêu thích, bấm lần nữa để bỏ yêu thích
-			await saveFavoriteJob(company); // Cập nhật trạng thái yêu thích
+			await saveFavoriteJob(company, formattedTime); // Cập nhật trạng thái yêu thích
 			setIsFavorite(false); // Cập nhật trạng thái của icon
 		} else {
-			await saveFavoriteJob(company); // Cập nhật trạng thái yêu thích
+			await saveFavoriteJob(company, formattedTime); // Cập nhật trạng thái yêu thích
 			setIsFavorite(true); // Cập nhật trạng thái của icon
 		}
 	};
@@ -142,6 +158,48 @@ const DescribeJob = ({ navigation, route }) => {
 			},
 			trigger: null,
 		});
+	};
+
+    const saveNotify = async (
+        notifyString,
+		jobName,
+		companyName,
+		imageCompany,
+		currentTime
+	) => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
+			const userId = currentUser.uid; // Lấy ID của user hiện tại
+
+			// Tạo đối tượng Experience
+			const notify = {
+                notifyString: notifyString,
+				jobName: jobName,
+				companyName: companyName,
+				imageCompany: imageCompany,
+				currentTime: currentTime
+			};
+
+			// Lấy dữ liệu hiện tại của user từ Firestore
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+
+			if (userDoc.exists) {
+				// Nếu user đã tồn tại trong Firestore
+				const userData = userDoc.data();
+				let notifies = userData.notifies || []; // Nếu đã có dữ liệu về kinh nghiệm, sử dụng nó, nếu không, tạo một mảng mới
+				notifies.push(notify); // Thêm thông tin kinh nghiệm mới vào mảng
+				await userRef.update({ notifies: notifies }); // Cập nhật dữ liệu trong Firestore
+			} else {
+				// Nếu user chưa tồn tại trong Firestore
+				await userRef.set({ notifies: [notify] }); // Tạo một user mới với thông tin kinh nghiệm
+			}
+
+			console.log("Notify added to Firestore successfully!");
+		} catch (error) {
+			console.error("Error adding notify to Firestore: ", error);
+		}
 	};
 
 	return (
