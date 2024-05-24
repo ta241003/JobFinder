@@ -1,20 +1,22 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { COLORS } from '../constants';
-
-
+import { firebase } from "../configFirebase";
+import { db } from "../configFirebase"; 
 
 const ListItem = ({job, onRemove, onPress}) => {
   return(
     <View style={styles.container}>
-      <Image source={job.logo} style={styles.logo} />
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <Image source={{uri : job.image_company}} style={styles.logo} />
+      </View>
       <View style={styles.textContainer}>
-        <Text style={styles.company}>{job.name}</Text>
-        <Text style={styles.jobname}>{job.job}</Text>
+        <Text style={styles.company}>{job.company_name}</Text>
+        <Text style={styles.jobname}>{job.job_name}</Text>
         <Text style={styles.describe}>{job.location}</Text>
       </View>
       <View style={{flexDirection:'column',justifyContent:'space-between', alignItems:'center'}}>
@@ -27,53 +29,71 @@ const ListItem = ({job, onRemove, onPress}) => {
   );
 };
 
-const SavedJob = ({navigation}) => {
+const SavedJob = ({navigation, route}) => {
 
   const handleBack = () => {
     navigation.navigate('Home'); // Điều hướng về trang Home khi nhấn nút back
   };
 
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      name: "Google",
-      logo: require("../assets/google.png"),
-      job: "React-native Developer",
-      location: "Hai Chau, Da Nang",
-      description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-    },
-    {
-      id: 2,
-      name: "Facebook",
-      logo: require("../assets/facebook.png"),
-      job: "Load Product Manager",
-      location: "Hai Chau, Da Nang",
-      description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-    },
-    {
-      id: 3,
-      name: "Google",
-      logo: require("../assets/google.png"),
-      job: "Tech Leader",
-      location: "Hai Chau, Da Nang",
-      description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-    },
-    {
-      id: 4,
-      name: "Google",
-      logo: require("../assets/google.png"),
-      job: "Tech Leader",
-      location: "Hai Chau, Da Nang",
-      description: "Chúng tôi đang tìm kiếm một UI/UX Designer tài năng và đam mê để tham gia vào đội ngũ của chúng tôi. Bạn sẽ có...",
-    },
+  const [jobs, setJobs] = useState([]);
+  const [userFavorite, setUserFavorite] = useState([]);
 
-    // Thêm các job khác nếu cần
-  ]);
+  useEffect(() =>{
+		const fetchJobs = async () => {
+			try {
+			  const jobsCollection = await db.collection('jobs').get();
+			  const jobsList = jobsCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+			  setJobs(jobsList);
+			} catch (error) {
+			  console.error("Error fetching jobs: ", error);
+			}
+		};
+	  
+		fetchJobs();
+		const fetchUserData = async () => {
+			try {
+				const userId = firebase.auth().currentUser.uid;
+				const userDoc = await firebase
+					.firestore()
+					.collection("users")
+					.doc(userId)
+					.get();
+				if (userDoc.exists) {
+					const userData = userDoc.data();
+					setUserFavorite(userData.favoriteJobIds);
+				} else {
+					console.log("User does not exist");
+				}
+			} catch (error) {
+				console.error("Error fetching user data:", error);
+			}
+		};
 
-  const removeJob = (id) => {
-    setJobs(jobs.filter(job => job.id !== id));
-  };
+		fetchUserData();
+	}, []);
 
+  const removeFavoriteJob = async (jobId) => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
+			const userId = currentUser.uid; // Lấy ID của user hiện tại
+	
+			// Lấy dữ liệu hiện tại của user từ Firestore
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+      const userData = userDoc.data();
+      let favoriteJobIds = userData.favoriteJobIds || []; // Nếu đã có dữ liệu về job iu thích, sử dụng nó, nếu không, tạo một mảng mới
+      favoriteJobIds = favoriteJobIds.filter(id => id !== jobId);
+				
+			await userRef.update({ favoriteJobIds: favoriteJobIds }); // Cập nhật dữ liệu trong Firestore
+			
+	
+			console.log("Favorite job deleted to Firestore successfully!");
+
+		} catch (error) {
+			console.error("Error delete favorite job to Firestore: ", error);
+		}
+	};
 
   return (
     <SafeAreaView>
@@ -86,9 +106,17 @@ const SavedJob = ({navigation}) => {
         </View>
       </View>
       <ScrollView>
-        {jobs.map((company) => (
-          <ListItem key={company.id} job={company} onRemove={() => removeJob(company.id)} onPress={() => navigation.navigate("DescribeJob", {company})}/>
-        ))}
+        {jobs
+          .filter(company => userFavorite.includes(company.id))
+          .map(company => (
+              <ListItem 
+                  key={company.id} 
+                  job={company}
+                  onRemove={() => removeFavoriteJob(company.id)}
+                  onPress={() => navigation.navigate("DescribeJob", {company})} 
+              />
+          ))
+        }
       </ScrollView>
     </SafeAreaView>
   );
@@ -119,7 +147,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     marginRight: 20,
-    borderRadius: 50,
+    borderRadius: 10,
   },
   textContainer: {
     flex:1,

@@ -45,6 +45,7 @@ const ShowAllPopularJob = ({navigation}) => {
 			try {
 			  const jobsCollection = await db.collection('jobs').get();
 			  const jobsList = jobsCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+			  jobsList.sort((a, b) => b.applied_number - a.applied_number);
 			  setJobs(jobsList);
 			} catch (error) {
 			  console.error("Error fetching jobs: ", error);

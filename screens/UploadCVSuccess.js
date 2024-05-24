@@ -49,7 +49,7 @@ const UploadCVSuccess = ({ navigation, route }) => {
 						</Text>
 						<Text style={{ marginBottom: 5 }}>{company.company_name}</Text>
 						<Text style={{ marginBottom: 5 }}>Job Type: {company.job_type}</Text>
-						<Text style={{ marginBottom: 5 }}>Salary: {company.salary} milions</Text>
+						<Text style={{ marginBottom: 5 }}>Salary: {company.salary}$</Text>
 						<Text style={{ marginBottom: 5, textAlign: 'center'}}>Address: {company.company_info}</Text>
 						<Text >Deadline for submittion: {company.deadline}</Text>
 					</View>

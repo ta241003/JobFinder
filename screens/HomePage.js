@@ -34,23 +34,6 @@ const Nearby_Job = ({ company, onPress }) => {
 };
 
 const Popular_Job = ({ item, onPress }) => {
-	const truncateDescription = (text, maxLength) => {
-		if (text.length <= maxLength) {
-			return text;
-		}
-		// Cắt chuỗi đến maxLength ký tự
-		let truncatedText = text.substr(0, maxLength);
-		// Đảm bảo cắt chuỗi tại khoảng trắng gần nhất để tránh cắt giữa từ
-		truncatedText = truncatedText.substr(
-			0,
-			Math.min(truncatedText.length, truncatedText.lastIndexOf(" "))
-		);
-		// Thêm dấu ... nếu cần
-		if (truncatedText.length < text.length) {
-			truncatedText += "...";
-		}
-		return truncatedText;
-	};
 
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.companyCard}>
@@ -59,9 +42,9 @@ const Popular_Job = ({ item, onPress }) => {
 					<Image source={{uri : item.image_company}} style={styles.companyLogo} />
 				</View>
 				<View style={styles.companyInfo}>
-					<Text style={styles.companyName}>{item.company_name}</Text>
+					<Text style={styles.companyName} numberOfLines={2} ellipsizeMode="tail">{item.company_name}</Text>
 					<Text style={styles.jobName}>
-						{truncateDescription(item.job_name, 20)}
+						{item.job_name}
 					</Text>
 					<Text style={styles.jobDescription}>{item.location}</Text>
 				</View>
@@ -95,14 +78,21 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 	const [activeJobType, setActiveJobType] = useState("Full-time");
 	const [userAccount, setUserAccount] = useState({});
 	const [avatarUrl, setAvatarUrl] = useState("");
-	const [jobs, setJobs] = useState([]);
+	const [popularjobs, setPopularJobs] = useState([]);
+	const [nearbyjobs, setNearbyJobs] = useState([]);
+
 
 	useEffect(() =>{
 		const fetchJobs = async () => {
 			try {
 			  const jobsCollection = await db.collection('jobs').get();
 			  const jobsList = jobsCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-			  setJobs(jobsList);
+			  const nearby_list = jobsList.slice(0,3);
+			  setNearbyJobs(nearby_list);
+
+			  jobsList.sort((a, b) => b.applied_number - a.applied_number);
+			  const popular_list = jobsList.slice(0, 3);
+			  setPopularJobs(popular_list);
 			} catch (error) {
 			  console.error("Error fetching jobs: ", error);
 			}
@@ -228,7 +218,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={styles.companyList}
 				>
-					{jobs.map((company) => (
+					{popularjobs.map((company) => (
 						<View
 							key={company.id}
 							style={styles.companyCardContainer}
@@ -258,7 +248,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 				</TouchableOpacity>
 			</View>
 			<View>
-				{jobs.map((company) => (
+				{nearbyjobs.map((company) => (
 					<Nearby_Job
 						key={company.id}
 						company={company}
