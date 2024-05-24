@@ -13,6 +13,7 @@ import {
 import COLORS from "../constants/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { firebase } from "../configFirebase";
+import * as Notifications from "expo-notifications";
 
 const DescribeJob = ({ navigation, route }) => {
 	const [selectedTab, setSelectedTab] = useState("Description");
@@ -32,27 +33,32 @@ const DescribeJob = ({ navigation, route }) => {
 			const db = firebase.firestore();
 			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
 			const userId = currentUser.uid; // Lấy ID của user hiện tại
-	
+
 			// Lấy dữ liệu hiện tại của user từ Firestore
 			const userRef = db.collection("users").doc(userId);
 			const userDoc = await userRef.get();
-	
+
 			if (userDoc.exists) {
 				// Nếu user đã tồn tại trong Firestore
 				const userData = userDoc.data();
 				let favoriteJobIds = userData.favoriteJobIds || []; // Nếu đã có dữ liệu về job iu thích, sử dụng nó, nếu không, tạo một mảng mới
-				if (favoriteJobIds.includes(jobId)) { // Kiểm tra xem jobId có trong mảng chưa
-					favoriteJobIds = favoriteJobIds.filter(id => id !== jobId);
-				}else{
-					favoriteJobIds.push(jobId);
+				if (favoriteJobIds.includes(jobId.id)) {
+					// Kiểm tra xem jobId có trong mảng chưa
+					favoriteJobIds = favoriteJobIds.filter(
+						(id) => id !== jobId.id
+					);
+					NotifyUnFavoriteJob(jobId);
+				} else {
+					favoriteJobIds.push(jobId.id);
+					NotifyFavoriteJob(jobId);
 				} // Thêm jobId vào mảng nếu chưa tồn tại
-				
+
 				await userRef.update({ favoriteJobIds: favoriteJobIds }); // Cập nhật dữ liệu trong Firestore
-			}else{
+			} else {
 				// Nếu user chưa tồn tại trong Firestore
-				await userRef.set({ favoriteJobIds: [jobId] }); // Tạo một user mới với thông tin job iu thích
+				await userRef.set({ favoriteJobIds: [jobId.id] }); // Tạo một user mới với thông tin job iu thích
 			}
-	
+
 			console.log("Favorite job added to Firestore successfully!");
 		} catch (error) {
 			console.error("Error adding favorite job to Firestore: ", error);
@@ -73,10 +79,10 @@ const DescribeJob = ({ navigation, route }) => {
 	const toggleFavorite = async () => {
 		if (isFavorite) {
 			// Nếu công việc đã được yêu thích, bấm lần nữa để bỏ yêu thích
-			await saveFavoriteJob(company.id); // Cập nhật trạng thái yêu thích
+			await saveFavoriteJob(company); // Cập nhật trạng thái yêu thích
 			setIsFavorite(false); // Cập nhật trạng thái của icon
 		} else {
-			await saveFavoriteJob(company.id); // Cập nhật trạng thái yêu thích
+			await saveFavoriteJob(company); // Cập nhật trạng thái yêu thích
 			setIsFavorite(true); // Cập nhật trạng thái của icon
 		}
 	};
@@ -88,13 +94,14 @@ const DescribeJob = ({ navigation, route }) => {
 			const db = firebase.firestore();
 			const currentUser = firebase.auth().currentUser; // Lấy thông tin user hiện tại
 			const userId = currentUser.uid; // Lấy ID của user hiện tại
-	
+
 			// Lấy dữ liệu hiện tại của user từ Firestore
 			const userRef = db.collection("users").doc(userId);
 			const userDoc = await userRef.get();
 			const userData = userDoc.data();
 			let favoriteJobIds = userData.favoriteJobIds || []; // Nếu đã có dữ liệu về job iu thích, sử dụng nó, nếu không, tạo một mảng mới
-			if (favoriteJobIds.includes(jobId)) { // Kiểm tra xem jobId có trong mảng chưa
+			if (favoriteJobIds.includes(jobId)) {
+				// Kiểm tra xem jobId có trong mảng chưa
 				return true; // Trả về true nếu jobId có trong mảng
 			} else {
 				return false; // Trả về false nếu jobId không có trong mảng
@@ -104,8 +111,38 @@ const DescribeJob = ({ navigation, route }) => {
 			return false; // Trả về false nếu có lỗi xảy ra
 		}
 	};
-	
-	
+
+	Notifications.setNotificationHandler({
+		handleNotification: async () => ({
+			shouldShowAlert: true,
+			shouldPlaySound: true,
+			shouldSetBadge: true,
+		}),
+	});
+
+	const NotifyFavoriteJob = async (jobId) => {
+		//show the notification to the user
+		Notifications.scheduleNotificationAsync({
+			//set the content of the notification
+			content: {
+				title: "You liked Job:",
+				body: `${jobId.company_name} ${jobId.job_name}`,
+			},
+			trigger: null,
+		});
+	};
+
+	const NotifyUnFavoriteJob = async (jobId) => {
+		//show the notification to the user
+		Notifications.scheduleNotificationAsync({
+			//set the content of the notification
+			content: {
+				title: "You have unfavorited Job:",
+				body: `${jobId.company_name} ${jobId.job_name}`,
+			},
+			trigger: null,
+		});
+	};
 
 	return (
 		<SafeAreaView>
@@ -290,7 +327,10 @@ const DescribeJob = ({ navigation, route }) => {
 						marginBottom: 20,
 					}}
 				>
-					<TouchableOpacity style={styles.tym_area} onPress={toggleFavorite}>
+					<TouchableOpacity
+						style={styles.tym_area}
+						onPress={toggleFavorite}
+					>
 						<AntDesign
 							name={iconName}
 							size={30}
