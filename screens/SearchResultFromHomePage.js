@@ -10,12 +10,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {Picker} from '@react-native-picker/picker'
 import BackButton from '../buttons/BackButton';
 import { firebase } from "../configFirebase";
+import { Keyboard, Platform } from "react-native";
 
 
 const windowHeight = Dimensions.get('window').height;
 const jobTypes = ["Full time", "Part time"];
 const jobSalary = [200,500,800,1000];
-const jobName = ["Java", "NodeJS", "JavaScript", "Python", "HTML/CSS", "Flutter", "React Native", "Kotlin", "PHP", ".NET"];
+const jobName = ["Java", "NodeJS", "JavaScript", "Python", "HTML/CSS", "Flutter", "React Native", "Kotlin", "PHP", ".NET", "Web Developer"];
+
 
 const ListItem = ({company, jobname, location, image, onPress}) => {
   return(
@@ -30,10 +32,15 @@ const ListItem = ({company, jobname, location, image, onPress}) => {
   );
 };
 
-const SearchPage = () => {
-  const [jobs, setJobs] = useState([]);
-  const [activeJobType, setActiveJobType] = useState("Full time");
-  const [selectedJob, setSelectedJob] = useState(jobName[0]);
+const SearchResultFromHomePage = ({route}) => {
+
+  const {item} = route.params;
+  const {searchTerm} = route.params;
+  const [activeJobType, setActiveJobType] = useState("Full-time");
+  const [jobname_search, setJobname_search] = useState("");
+
+
+  const [selectedJob, setSelectedJob] = useState("");
   const onJobChange = (itemValue, itemIndex) => {
     setSelectedJob(itemValue);
   };
@@ -53,6 +60,63 @@ const SearchPage = () => {
 
   const toggleFilter = () => {
     setShowFilter(!showFilter);
+  };
+
+  const [jobs, setJobs] = useState([]);
+
+	useEffect(() => {
+		const unsubscribe = navigation.addListener("focus", () => {
+			if(item){
+            full_parttime_job();
+        }else if(searchTerm){
+            searchTerm_job();
+        }});
+        return unsubscribe;
+    }, [navigation]);
+
+	const full_parttime_job = async () => {
+    try {
+        const jobsCollection = await firebase.firestore().collection("jobs").get();
+        const jobsList = jobsCollection.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        // Filter the jobs to only include full-time positions
+        const items = jobsList.filter(job => job.job_type === item);
+
+        setJobs(items);
+    } catch (error) {
+        console.error("Error fetching jobs: ", error);
+    }
+  };
+
+  const searchTerm_job = async () => {
+    try {
+        const jobsCollection = await firebase.firestore().collection("jobs").get();
+        const jobsList = jobsCollection.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        // Convert the search term to lower case for case-insensitive comparison
+        const lowerCaseItem = searchTerm.toLowerCase();
+
+        // Filter the jobs to include those where the search term matches any attribute
+        const filteredJobs = jobsList.filter((job) => {
+            const { job_type, job_name, company_name, location } = job;
+            return (
+                job_type.toLowerCase().includes(lowerCaseItem) ||
+                job_name.toLowerCase().includes(lowerCaseItem) ||
+                company_name.toLowerCase().includes(lowerCaseItem) ||
+                location.toLowerCase().includes(lowerCaseItem)
+            );
+        });
+
+        setJobs(filteredJobs);
+    } catch (error) {
+        console.error("Error fetching jobs: ", error);
+    }
   };
 
   const searchFilter_job = async () => {
@@ -101,7 +165,7 @@ const SearchPage = () => {
 
       <View style={styles.searchContainer}>
         <View style={styles.searchWrapper}>
-          <Text style={{fontSize:18, color:"#c0c0c0"}}>What are you looking for?</Text>
+          <Text style={{fontSize:18}}>{item}{searchTerm}</Text>
         </View>
         <View>
           <TouchableOpacity style={styles.searchBtn} onPress={toggleFilter}>
@@ -117,7 +181,7 @@ const SearchPage = () => {
             <View style={styles.centeredView}>
               <View style={styles.modalBackground}></View>
               <View style={styles.modalView}>
-                <View style={{}}>
+                <View>
                   <TouchableOpacity onPress={toggleFilter} style={{position: 'absolute',top:5,right:0}}>
                     <MaterialCommunityIcons name="window-close" size={24} color="black" />
                   </TouchableOpacity>
@@ -129,12 +193,13 @@ const SearchPage = () => {
                   <Text style={{fontSize:20, fontWeight: 'bold', marginTop: 20}}>Job</Text>
                   <View style={{ backgroundColor:'#f5f5f5', height:54, borderColor:COLORS.hidetitle, marginTop:10}}>
                     <Picker
-                      selectedValue={selectedJob}
-                      style={styles.picker}
-                      onValueChange={onJobChange}>
-                      {jobName.map((job, index) => (
-                        <Picker.Item label={job} value={job} key={index} />
-                      ))}
+                        selectedValue={selectedJob}
+                        style={styles.picker}
+                        onValueChange={onJobChange}>
+                        <Picker.Item label="Choose job" value="" />
+                        {jobName.map((job, index) => (
+                            <Picker.Item label={job} value={job} key={index} />
+                        ))}
                     </Picker>
                   </View>
                 </View>
@@ -145,6 +210,7 @@ const SearchPage = () => {
                     selectedValue={selectedLocation}
                     onValueChange={onLocationChange}
                     >
+                        <Picker.Item label="Choose Location" value="" />
                         <Picker.Item label="Da Nang" value="Da Nang" />
                         <Picker.Item label="Hue" value="Hue" />
                         <Picker.Item label="Ha Noi" value="Ha Noi" />
@@ -187,7 +253,7 @@ const SearchPage = () => {
                   </View>
                 </View>
                 <View style={{marginTop:50, backgroundColor:"#ff7754", height:50, justifyContent:'center', alignItems:'center', borderRadius:20}}>
-                  <TouchableOpacity onPress={applyFilters}><Text style={{color:"#fff", fontSize:20}}>Apply Filters</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={applyFilters}><Text  style={{color:"#fff", fontSize:20}}>Apply Filters</Text></TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -221,7 +287,7 @@ const SearchPage = () => {
   );
 }
 
-export default SearchPage;
+export default SearchResultFromHomePage;
 
 
 const styles = StyleSheet.create({

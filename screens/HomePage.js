@@ -16,7 +16,7 @@ import { firebase } from "../configFirebase";
 import { db } from "../configFirebase"; 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const jobTypes = ["Full-time", "Part-time", "Internship"];
+const jobTypes = ["Full time", "Part time"];
 
 const Nearby_Job = ({ company, onPress }) => {
 	return (
@@ -74,12 +74,13 @@ const changePassword = () => {
 
 
 
-const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
+const HomePage = ({navigation }) => {
 	const [activeJobType, setActiveJobType] = useState("Full-time");
 	const [userAccount, setUserAccount] = useState({});
 	const [avatarUrl, setAvatarUrl] = useState("");
 	const [popularjobs, setPopularJobs] = useState([]);
 	const [nearbyjobs, setNearbyJobs] = useState([]);
+	const [searchTerm, setSearchTerm] = useState("");
 
 
 	useEffect(() =>{
@@ -164,7 +165,9 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 
 			<TouchableOpacity
 				style={styles.searchBtn}
-				onPress={handleClick}
+				onPress={()=>{
+					navigation.navigate("SearchResultFromHomePage", {searchTerm});
+				}}
 			>
 				<Image
 					source={icons.search}
@@ -183,7 +186,7 @@ const HomePage = ({ searchTerm, setSearchTerm, handleClick, navigation }) => {
 						style={styles.tab(activeJobType, item)}
 						onPress={() => {
 							setActiveJobType(item);
-							// router.push(`/search/${item}`);
+							navigation.navigate("SearchResultFromHomePage", {item})
 						}}
 					>
 						<Text style={styles.tabText(activeJobType, item)}>
