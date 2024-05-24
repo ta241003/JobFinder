@@ -65,6 +65,30 @@ const SavedJob = ({ navigation, route }) => {
 
 	const [jobs, setJobs] = useState([]);
 	const [userFavorite, setUserFavorite] = useState([]);
+	const [notifyOption, setNotifyOption] = useState(false); // Khai báo biến lưu trữ giá trị Notify_option
+
+	// Function để lấy giá trị Notify_option từ Firestore và console.log
+	const fetchNotifyOption = async () => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser;
+			const userId = currentUser.uid;
+
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+
+			if (userDoc.exists) {
+				const userData = userDoc.data();
+				const notifyOptionValue = userData.Notify_option; // Lấy giá trị của trường Notify_option từ dữ liệu người dùng
+				setNotifyOption(notifyOptionValue); // Lưu giá trị vào state
+				console.log("Notify Option Value:", notifyOptionValue); // Console.log giá trị
+			} else {
+				console.log("User document not found!");
+			}
+		} catch (error) {
+			console.error("Error fetching notify option:", error);
+		}
+	};
 
 	useEffect(() => {
 		const unsubscribe = navigation.addListener("focus", () => {
@@ -72,6 +96,7 @@ const SavedJob = ({ navigation, route }) => {
 			fetchUserData(); // Hàm lấy dữ liệu từ Firestore
 		});
 		return unsubscribe;
+		fetchNotifyOption();
 	}, [navigation]);
 
 	const fetchJobs = async () => {
@@ -125,7 +150,10 @@ const SavedJob = ({ navigation, route }) => {
 			setUserFavorite(favoriteJobIds);
 
 			console.log("Favorite job deleted to Firestore successfully!");
-			NotifyUnFavoriteJob(jobId);
+
+			if (notifyOption === true) {
+				NotifyUnFavoriteJob(jobId);
+			}
 		} catch (error) {
 			console.error("Error delete favorite job to Firestore: ", error);
 		}

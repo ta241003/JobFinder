@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		paddingHorizontal: 20,
-		marginTop: 50,
+		marginTop: 30,
 		marginBottom: 30,
 	},
 	menu: {
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	companyLogo: {
-		width: '100%',
+		width: "100%",
 		height: "100%",
 		borderRadius: 10,
 	},

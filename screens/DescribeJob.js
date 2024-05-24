@@ -17,6 +17,30 @@ import * as Notifications from "expo-notifications";
 
 const DescribeJob = ({ navigation, route }) => {
 	const [selectedTab, setSelectedTab] = useState("Description");
+	const [notifyOption, setNotifyOption] = useState(false); // Khai báo biến lưu trữ giá trị Notify_option
+
+	// Function để lấy giá trị Notify_option từ Firestore và console.log
+	const fetchNotifyOption = async () => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser;
+			const userId = currentUser.uid;
+
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+
+			if (userDoc.exists) {
+				const userData = userDoc.data();
+				const notifyOptionValue = userData.Notify_option; // Lấy giá trị của trường Notify_option từ dữ liệu người dùng
+				setNotifyOption(notifyOptionValue); // Lưu giá trị vào state
+				console.log("Notify Option Value:", notifyOptionValue); // Console.log giá trị
+			} else {
+				console.log("User document not found!");
+			}
+		} catch (error) {
+			console.error("Error fetching notify option:", error);
+		}
+	};
 
 	const handleTabPress = (tab) => {
 		setSelectedTab(tab);
@@ -30,10 +54,10 @@ const DescribeJob = ({ navigation, route }) => {
 
 	const setTimeNow = () => {
 		const now = new Date();
-		const hours = now.getHours().toString().padStart(2, '0');
-		const minutes = now.getMinutes().toString().padStart(2, '0');
-		const day = now.getDate().toString().padStart(2, '0');
-		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Tháng tính từ 0-11, nên cần +1
+		const hours = now.getHours().toString().padStart(2, "0");
+		const minutes = now.getMinutes().toString().padStart(2, "0");
+		const day = now.getDate().toString().padStart(2, "0");
+		const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Tháng tính từ 0-11, nên cần +1
 		const year = now.getFullYear();
 		const formattedTime = `${hours}:${minutes} ${day} thg ${month}, ${year}`;
 		return formattedTime;
@@ -58,14 +82,30 @@ const DescribeJob = ({ navigation, route }) => {
 					favoriteJobIds = favoriteJobIds.filter(
 						(id) => id !== jobId.id
 					);
-					NotifyUnFavoriteJob(jobId);
-                    const notify_unlike = "You have unfavorited Job:";
-                    saveNotify(notify_unlike, jobId.job_name, jobId.company_name, jobId.image_company, currentTime);
+					if (notifyOption === true) {
+						NotifyUnFavoriteJob(jobId);
+					}
+					const notify_unlike = "You have unfavorited Job:";
+					saveNotify(
+						notify_unlike,
+						jobId.job_name,
+						jobId.company_name,
+						jobId.image_company,
+						currentTime
+					);
 				} else {
 					favoriteJobIds.push(jobId.id);
-					NotifyFavoriteJob(jobId);
-                    const notify_like = "You like Job:";
-                    saveNotify(notify_like, jobId.job_name, jobId.company_name, jobId.image_company, currentTime);
+					if (notifyOption == true) {
+						NotifyFavoriteJob(jobId);
+					}
+					const notify_like = "You like Job:";
+					saveNotify(
+						notify_like,
+						jobId.job_name,
+						jobId.company_name,
+						jobId.image_company,
+						currentTime
+					);
 				} // Thêm jobId vào mảng nếu chưa tồn tại
 
 				await userRef.update({ favoriteJobIds: favoriteJobIds }); // Cập nhật dữ liệu trong Firestore
@@ -87,7 +127,7 @@ const DescribeJob = ({ navigation, route }) => {
 			const isJobFavorite = await checkFavoriteJob(company.id);
 			setIsFavorite(isJobFavorite);
 		};
-
+		fetchNotifyOption();
 		checkFavoriteStatus();
 	}, [company.id]); // Chạy lại effect khi id của công việc thay đổi
 
@@ -160,8 +200,8 @@ const DescribeJob = ({ navigation, route }) => {
 		});
 	};
 
-    const saveNotify = async (
-        notifyString,
+	const saveNotify = async (
+		notifyString,
 		jobName,
 		companyName,
 		imageCompany,
@@ -174,11 +214,11 @@ const DescribeJob = ({ navigation, route }) => {
 
 			// Tạo đối tượng Experience
 			const notify = {
-                notifyString: notifyString,
+				notifyString: notifyString,
 				jobName: jobName,
 				companyName: companyName,
 				imageCompany: imageCompany,
-				currentTime: currentTime
+				currentTime: currentTime,
 			};
 
 			// Lấy dữ liệu hiện tại của user từ Firestore

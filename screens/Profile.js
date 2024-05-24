@@ -54,37 +54,40 @@ const Profile = () => {
 	const [userAccount, setUserAccount] = useState("");
 	const [imageUri, setImageUri] = useState(null);
 
-	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				const snapshot = await firebase
-					.firestore()
-					.collection("users")
-					.doc(firebase.auth().currentUser.uid)
-					.get();
+	const fetchUserData = async () => {
+		try {
+			const snapshot = await firebase
+				.firestore()
+				.collection("users")
+				.doc(firebase.auth().currentUser.uid)
+				.get();
 
-				if (snapshot.exists) {
-					const data = snapshot.data();
-					setUserAccount(data);
+			if (snapshot.exists) {
+				const data = snapshot.data();
+				setUserAccount(data);
 
-					// Lấy đường dẫn hình ảnh từ Avatar_image
-					const avatarImage = data.Avatar_image;
+				// Lấy đường dẫn hình ảnh từ Avatar_image
+				const avatarImage = data.Avatar_image;
 
-					// Kiểm tra nếu Avatar_image tồn tại
-					if (avatarImage) {
-						// Gán đường dẫn hình ảnh vào state để hiển thị
-						setImageUri(avatarImage);
-					}
-				} else {
-					console.log("User does not exist");
+				// Kiểm tra nếu Avatar_image tồn tại
+				if (avatarImage) {
+					// Gán đường dẫn hình ảnh vào state để hiển thị
+					setImageUri(avatarImage);
 				}
-			} catch (error) {
-				console.error("Error fetching user data: ", error);
+			} else {
+				console.log("User does not exist");
 			}
-		};
+		} catch (error) {
+			console.error("Error fetching user data: ", error);
+		}
+	};
 
-		fetchUserData();
-	}, []);
+	useEffect(() => {
+		const unsubscribe = navigation.addListener("focus", () => {
+			fetchUserData();
+		});
+		return unsubscribe;
+	}, [navigation]);
 
 	const handleBack = () => {
 		navigation.navigate("Home"); // Điều hướng về trang Home khi nhấn nút back

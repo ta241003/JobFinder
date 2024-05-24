@@ -70,20 +70,21 @@ const HomeStack = () => (
 		<Stack.Screen name="DescribeJob" component={DescribeJob} />
 		<Stack.Screen name="UploadCV" component={UploadCV} />
 		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
-		<Stack.Screen name="ShowAllPopularJob" component={ShowAllPopularJob}/>
-		<Stack.Screen name="ShowAllNearbyJob" component={ShowAllNearbyJob}/>
+		<Stack.Screen name="ShowAllPopularJob" component={ShowAllPopularJob} />
+		<Stack.Screen name="ShowAllNearbyJob" component={ShowAllNearbyJob} />
 	</Stack.Navigator>
 );
 
 const SavedJobStack = () => (
 	<Stack.Navigator
-		initialRouteName="SavedJob"
+		initialRouteName="Favorite"
 		screenOptions={() => ({ headerShown: false })}
 	>
 		<Stack.Screen name="SavedJobDetails" component={SavedJob} />
-		<Stack.Screen name="DescribeJob" component={DescribeJob}/>
+		<Stack.Screen name="DescribeJob" component={DescribeJob} />
 		<Stack.Screen name="UploadCV" component={UploadCV} />
 		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
+		<Stack.Screen name="HomeDetails" component={HomePage} />
 	</Stack.Navigator>
 );
 
@@ -147,52 +148,49 @@ const MainApp = () => {
 				})}
 			>
 				<Tab.Screen name="Search" component={SearchPage} />
-				<Tab.Screen 
-					name="Favorite" 
+				<Tab.Screen
+					name="Favorite"
 					component={SavedJobStack}
 					listeners={({ navigation }) => ({
-						tabPress: e => {
-						  // Prevent default action
-						  e.preventDefault();
-						  
-						  // Reset the stack to the initial route
-						  navigation.reset({
-							index: 0,
-							routes: [{ name: 'Favorite' }],
-						  });
+						tabPress: (e) => {
+							// Prevent default action
+							e.preventDefault();
+
+							// Reset the stack to the initial route
+							navigation.navigate("Favorite");
 						},
-					  })} 
+					})}
 				/>
-				<Tab.Screen 
-					name="Home" 
-					component={HomeStack} 
+				<Tab.Screen
+					name="Home"
+					component={HomeStack}
 					listeners={({ navigation }) => ({
-						tabPress: e => {
-						  // Prevent default action
-						  e.preventDefault();
-						  
-						  // Reset the stack to the initial route
-						  navigation.reset({
-							index: 0,
-							routes: [{ name: 'Home' }],
-						  });
+						tabPress: (e) => {
+							// Prevent default action
+							e.preventDefault();
+
+							// Reset the stack to the initial route
+							navigation.reset({
+								index: 0,
+								routes: [{ name: "Home" }],
+							});
 						},
-					  })}
+					})}
 				/>
 				<Tab.Screen name="Notify" component={EmptyNotify} />
-				<Tab.Screen 
-					name="Profile" 
-					component={ProfileStack} 
+				<Tab.Screen
+					name="Profile"
+					component={ProfileStack}
 					listeners={({ navigation }) => ({
-						tabPress: e => {
-						  // Prevent default action
-						  e.preventDefault();
-						  
-						  // Reset the stack to the initial route
-						  navigation.reset({
-							index: 0,
-							routes: [{ name: 'Profile' }],
-						  });
+						tabPress: (e) => {
+							// Prevent default action
+							e.preventDefault();
+
+							// Reset the stack to the initial route
+							navigation.reset({
+								index: 0,
+								routes: [{ name: "Profile" }],
+							});
 						},
 					})}
 				/>

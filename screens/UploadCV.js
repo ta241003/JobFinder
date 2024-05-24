@@ -30,12 +30,37 @@ const UploadCV = ({ navigation, route }) => {
 	const notificationListener = useRef();
 	const responseListener = useRef();
 
+	const [notifyOption, setNotifyOption] = useState(false); // Khai báo biến lưu trữ giá trị Notify_option
+
+	// Function để lấy giá trị Notify_option từ Firestore và console.log
+	const fetchNotifyOption = async () => {
+		try {
+			const db = firebase.firestore();
+			const currentUser = firebase.auth().currentUser;
+			const userId = currentUser.uid;
+
+			const userRef = db.collection("users").doc(userId);
+			const userDoc = await userRef.get();
+
+			if (userDoc.exists) {
+				const userData = userDoc.data();
+				const notifyOptionValue = userData.Notify_option; // Lấy giá trị của trường Notify_option từ dữ liệu người dùng
+				setNotifyOption(notifyOptionValue); // Lưu giá trị vào state
+				console.log("Notify Option Value:", notifyOptionValue); // Console.log giá trị
+			} else {
+				console.log("User document not found!");
+			}
+		} catch (error) {
+			console.error("Error fetching notify option:", error);
+		}
+	};
+
 	const setTimeNow = () => {
 		const now = new Date();
-		const hours = now.getHours().toString().padStart(2, '0');
-		const minutes = now.getMinutes().toString().padStart(2, '0');
-		const day = now.getDate().toString().padStart(2, '0');
-		const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Tháng tính từ 0-11, nên cần +1
+		const hours = now.getHours().toString().padStart(2, "0");
+		const minutes = now.getMinutes().toString().padStart(2, "0");
+		const day = now.getDate().toString().padStart(2, "0");
+		const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Tháng tính từ 0-11, nên cần +1
 		const year = now.getFullYear();
 		const formattedTime = `${hours}:${minutes} ${day} thg ${month}, ${year}`;
 		return formattedTime;
@@ -47,8 +72,8 @@ const UploadCV = ({ navigation, route }) => {
 			setIsAvailable(isMailAvailable);
 		}
 		checkAvailability();
-
 		registerForPushNotificationsAsync();
+		fetchNotifyOption();
 
 		notificationListener.current =
 			Notifications.addNotificationReceivedListener((notification) => {
@@ -166,9 +191,17 @@ const UploadCV = ({ navigation, route }) => {
 				await updateAppliedNumber();
 				await updateAppliedField();
 				saveJobApplication();
-				sendNotification();
+				if (notifyOption === true) {
+					sendNotification();
+				}
 				const notify_apllied = "You applied successfully job:";
-                saveNotify(notify_apllied, company.job_name, company.company_name, company.image_company, setTimeNow());
+				saveNotify(
+					notify_apllied,
+					company.job_name,
+					company.company_name,
+					company.image_company,
+					setTimeNow()
+				);
 				navigation.navigate("UploadCVSuccess", { company, cvFile });
 			} else {
 				Alert.alert("Failed to send email");
@@ -269,7 +302,7 @@ const UploadCV = ({ navigation, route }) => {
 	};
 
 	const saveNotify = async (
-        notifyString,
+		notifyString,
 		jobName,
 		companyName,
 		imageCompany,
@@ -282,11 +315,11 @@ const UploadCV = ({ navigation, route }) => {
 
 			// Tạo đối tượng Experience
 			const notify = {
-                notifyString: notifyString,
+				notifyString: notifyString,
 				jobName: jobName,
 				companyName: companyName,
 				imageCompany: imageCompany,
-				currentTime: currentTime
+				currentTime: currentTime,
 			};
 
 			// Lấy dữ liệu hiện tại của user từ Firestore

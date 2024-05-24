@@ -38,7 +38,13 @@ const PersonalData = () => {
 					setLocation(userData.Location);
 					const birthday = new Date(userData.Birthday);
 					setSelectedDate(birthday);
-					setDisplayDate(birthday.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+					setDisplayDate(
+						birthday.toLocaleDateString("en-GB", {
+							year: "numeric",
+							month: "2-digit",
+							day: "2-digit",
+						})
+					);
 					setImage(userData.Avatar_image); // Load image from Firestore
 				} else {
 					console.log("User does not exist");
@@ -59,7 +65,13 @@ const PersonalData = () => {
 		if (selectedDate) {
 			setShowDatePicker(false);
 			setSelectedDate(selectedDate);
-			setDisplayDate(selectedDate.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }));
+			setDisplayDate(
+				selectedDate.toLocaleDateString("en-GB", {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+				})
+			);
 		}
 	};
 
@@ -139,7 +151,37 @@ const PersonalData = () => {
 		}
 	};
 
-	const saveUserData = () => {
+	const updateCandidateFullNameInJobsApplications = async (
+		newFullName,
+		oldFullName,
+		userEmail
+	) => {
+		try {
+			// Lấy tất cả các tài liệu trong bộ sưu tập jobs_application có Candidate_email giống với Email của người dùng
+			const jobsApplicationsSnapshot = await firebase
+				.firestore()
+				.collection("jobs_application")
+				.where("Candidate_email", "==", userEmail)
+				.get();
+
+			// Duyệt qua từng tài liệu và cập nhật Candidate_fullName
+			const batch = firebase.firestore().batch();
+			jobsApplicationsSnapshot.forEach((doc) => {
+				batch.update(doc.ref, { Candidate_fullName: newFullName });
+			});
+
+			// Thực thi tất cả các cập nhật trong một batch
+			await batch.commit();
+		} catch (error) {
+			console.error(
+				"Error updating Candidate_fullName in jobs_application: ",
+				error
+			);
+			throw error;
+		}
+	};
+
+	const saveUserData = async () => {
 		if (!fullName.trim() || !location.trim() || !displayDate.trim()) {
 			Alert.alert("Error", "Please fill in all fields");
 			return;
@@ -150,25 +192,36 @@ const PersonalData = () => {
 			.collection("users")
 			.doc(firebase.auth().currentUser.uid);
 
-		userRef
-			.update({
+		try {
+			// Cập nhật thông tin của người dùng
+			await userRef.update({
 				FullName: fullName,
 				Location: location,
 				Birthday: selectedDate.toDateString(),
 				Avatar_image: image, // Save image URL
-			})
-			.then(() => {
-				console.log("User data updated successfully");
-				Alert.alert("Success", "User data updated successfully", [
-					{
-						text: "OK",
-						onPress: () => navigation.goBack(),
-					},
-				]);
-			})
-			.catch((error) => {
-				console.error("Error updating user data: ", error);
 			});
+
+			// Lấy Email của người dùng
+			const userEmail = userAccount.Email;
+
+			// Cập nhật Candidate_fullName trong các tài liệu jobs_application có Candidate_email giống với Email của người dùng
+			await updateCandidateFullNameInJobsApplications(
+				fullName,
+				userAccount.FullName,
+				userEmail
+			);
+
+			console.log("User data updated successfully");
+			Alert.alert("Success", "User data updated successfully", [
+				{
+					text: "OK",
+					onPress: () => navigation.goBack(),
+				},
+			]);
+		} catch (error) {
+			console.error("Error updating user data: ", error);
+			Alert.alert("Error", "Failed to update user data");
+		}
 	};
 
 	return (

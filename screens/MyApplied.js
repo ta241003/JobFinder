@@ -31,14 +31,14 @@ const ListItem = ({
 				<View style={styles.row}>
 					<Text
 						style={styles.company}
-						numberOfLines={1}
+						numberOfLines={2}
 						ellipsizeMode="tail"
 					>
 						{jobCompany}
 					</Text>
 					<Text style={styles.jobTimeApplied}>{jobTimeApplied}</Text>
 				</View>
-				<Text>{jobName}</Text>
+				<Text>Position: {jobName}</Text>
 				<View style={styles.row2}>
 					<Text>{jobType} - </Text>
 					<Text>{jobSalary} $</Text>
