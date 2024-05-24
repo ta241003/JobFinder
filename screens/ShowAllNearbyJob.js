@@ -76,6 +76,7 @@ const ShowAllNearbyJob = ({ navigation }) => {
 		<SafeAreaView>
 			<ScrollView>
 				<BackButton></BackButton>
+				<Text style={{textAlign:'center', fontSize:20, marginTop:-5}}>Nearby Job</Text>
 				<View style={{ marginHorizontal: 20, marginVertical: 30 }}>
 					{jobs.map((company) => (
 						<Nearby_Job
