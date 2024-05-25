@@ -23,7 +23,7 @@ const Notify = ({ notifies }) => {
 				<Text style={styles.location}>
 					From company: {notifies.companyName}
 				</Text>
-				<Text>{notifies.currentTime}</Text>
+				<Text style={styles.time}>{notifies.currentTime}</Text>
 			</View>
 		</View>
 	);
@@ -99,6 +99,9 @@ const EmptyNotify = () => {
 				>
 					<Ionicons name="chevron-back" size={24} color="black" />
 				</TouchableOpacity>
+				<View style={styles.header}>
+					<Text style={styles.headerText}>Notifications</Text>
+				</View>
 				<View style={{ marginTop: 30 }}>
 					{notify.length > 0 ? (
 						notify
@@ -150,5 +153,18 @@ const styles = StyleSheet.create({
 	location: {
 		fontSize: 15,
 		color: "#555555",
+	},
+	header: {
+		justifyContent: "center",
+		alignItems: "center",
+		marginTop: -5,
+	},
+	headerText: {
+		fontSize: 20,
+		fontWeight: "bold",
+	},
+	time: {
+		alignSelf: "flex-end",
+		color: "#FF7754",
 	},
 });

@@ -21,9 +21,13 @@ import { useNavigation } from "@react-navigation/native";
 import { firebase } from "../configFirebase";
 
 const Settings = () => {
-	const [selectedLanguage, setSelectedLanguage] = useState("English");
+	// const [selectedLanguage, setSelectedLanguage] = useState("English");
 	const [isEnabled, setIsEnabled] = useState(false);
 	const navigation = useNavigation();
+
+	const signOut = () => {
+		firebase.auth().signOut();
+	};
 
 	// Thực hiện xử lý khi giá trị của Switch thay đổi
 	const toggleSwitch = (value) => {
@@ -137,7 +141,7 @@ const Settings = () => {
 						value={isEnabled}
 					/>
 				</View>
-				<View style={styles.item_container}>
+				{/* <View style={styles.item_container}>
 					<View style={styles.leftSquare}>
 						<Ionicons
 							name="language"
@@ -145,34 +149,26 @@ const Settings = () => {
 							color={COLORS.maugach}
 						/>
 					</View>
-					<View style={{ flex: 1, marginLeft: 10 }}>
-						<View
-							style={{
-								borderWidth: 2,
-								width: 150,
-								height: 60,
-								borderColor: COLORS.hidetitle,
-							}}
+					<View style={styles.pickerContainer}>
+						<Picker
+							selectedValue={selectedLanguage}
+							onValueChange={(itemValue, itemIndex) =>
+								setSelectedLanguage(itemValue)
+							}
+							style={styles.picker}
 						>
-							<Picker
-								selectedValue={selectedLanguage}
-								onValueChange={(itemValue, itemIndex) =>
-									setSelectedLanguage(itemValue)
-								}
-							>
-								<Picker.Item label="English" value="English" />
-								<Picker.Item
-									label="Vietnamese"
-									value="Vietnamese"
-								/>
-							</Picker>
-						</View>
+							<Picker.Item label="English" value="English" />
+							<Picker.Item
+								label="Vietnamese"
+								value="Vietnamese"
+							/>
+						</Picker>
 					</View>
-				</View>
+				</View> */}
 
 				<TouchableOpacity
 					style={styles.item_container}
-					onPress={() => navigation.navigate("Welcome")}
+					onPress={signOut}
 				>
 					<View style={styles.leftSquare}>
 						<AntDesign
@@ -224,5 +220,16 @@ const styles = StyleSheet.create({
 		flex: 1,
 		fontSize: 16,
 		marginRight: 10,
+	},
+	pickerContainer: {
+		flex: 1,
+		marginLeft: 10,
+		borderWidth: 2,
+		borderColor: COLORS.hidetitle,
+		borderRadius: 5,
+	},
+	picker: {
+		height: 40,
+		width: "100%",
 	},
 });
