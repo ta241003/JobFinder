@@ -36,7 +36,7 @@ const SearchResultFromHomePage = ({route}) => {
 
   const {item} = route.params;
   const {searchTerm} = route.params;
-  const [activeJobType, setActiveJobType] = useState("Full-time");
+  const [activeJobType, setActiveJobType] = useState("");
   const [jobname_search, setJobname_search] = useState("");
 
 
@@ -49,6 +49,11 @@ const SearchResultFromHomePage = ({route}) => {
   const onLocationChange = (itemValue, itemIndex) => {
     setSelectedLocation(itemValue);
   };
+
+  const [selectedSalary, setSelectedSalary] = useState("");
+	const onSalaryChange = (itemValue, itemIndex) => {
+		setSelectedSalary(itemValue);
+	};
 
   const navigation = useNavigation();
 
@@ -121,27 +126,28 @@ const SearchResultFromHomePage = ({route}) => {
 
   const searchFilter_job = async () => {
     try {
-        const jobsCollection = await firebase.firestore().collection("jobs").get();
-        const jobsList = jobsCollection.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+      const jobsCollection = await firebase.firestore().collection("jobs").get();
+      const jobsList = jobsCollection.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+      }));
 
         // Convert the search term to lower case for case-insensitive comparison
-        const lowerCaseJobType = activeJobType.toLowerCase();
-        const lowerCaseSeletedJob = selectedJob.toLowerCase();
-        const lowerCaseSelectedLocation = selectedLocation.toLowerCase();
+			const lowerCaseJobType = activeJobType ? activeJobType.toLowerCase() : '';
+      const lowerCaseSelectedJob = selectedJob ? selectedJob.toLowerCase() : '';
+      const lowerCaseSelectedLocation = selectedLocation ? selectedLocation.toLowerCase() : '';
 
+      // Filter the jobs to include those where the search term matches any attribute
+      const filteredJobs = jobsList.filter((job) => {
+        const { job_type, job_name, salary_level, location } = job;
 
-        // Filter the jobs to include those where the search term matches any attribute
-        const filteredJobs = jobsList.filter((job) => {
-            const { job_type, job_name, company_name, location } = job;
-            return (
-                job_type.toLowerCase().includes(lowerCaseJobType) &&
-                job_name.toLowerCase().includes(lowerCaseSeletedJob) &&
-                location.toLowerCase().includes(lowerCaseSelectedLocation)
-            );
-        });
+        const jobTypeMatch = lowerCaseJobType ? job_type.toLowerCase().includes(lowerCaseJobType) : true;
+        const jobNameMatch = lowerCaseSelectedJob ? job_name.toLowerCase().includes(lowerCaseSelectedJob) : true;
+        const locationMatch = lowerCaseSelectedLocation ? location.toLowerCase().includes(lowerCaseSelectedLocation) : true;
+        const salaryMatch = selectedSalary ? salary_level.includes(selectedSalary) : true;
+              
+        return jobTypeMatch && jobNameMatch && locationMatch && salaryMatch;
+      });
 
         setJobs(filteredJobs);
     } catch (error) {
@@ -221,13 +227,35 @@ const SearchResultFromHomePage = ({route}) => {
                 <View style={{flexDirection: 'row', justifyContent:'space-between', marginTop:30}}>
                   <View><Text style={{fontSize:20, fontWeight: 'bold', marginTop: 20}}>Salary</Text></View>
                   <View style={{ backgroundColor:'#f5f5f5', width:'70%',height:54, borderColor:COLORS.hidetitle, marginTop:10}}>
-                    <Picker
-                    selectedValue={selectedJob}
-                    onValueChange={(itemValue, itemIndex) => setSelectedJob(itemValue)}
-                    >
-                        <Picker.Item label="100$ - 500$" value="100$ - 500$" />
-                        <Picker.Item label="500$ - 1000$" value="500$ - 1000$" />
-                    </Picker>
+                  <Picker
+                  selectedValue={selectedSalary}
+                  onValueChange={onSalaryChange}
+                  >
+                    <Picker.Item
+                      label="Choose salary"
+                      value=""
+                    />
+                    <Picker.Item
+                      label="Less than 200$"
+                      value="Less than 200$"
+                    />
+                    <Picker.Item
+                      label="200$ - 500$"
+                      value="200$ - 500$"
+                    />
+                    <Picker.Item
+                      label="500$ - 800$"
+                      value="500$ - 800$"
+                    />
+                    <Picker.Item
+                      label="800$ - 1000$"
+                      value="800$ - 1000$"
+                    />
+                    <Picker.Item
+                      label="More than 1000$"
+                      value="More than 1000$"
+                    />
+                  </Picker>
                   </View>
                 </View>
                 <View>

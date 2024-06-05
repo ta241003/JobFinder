@@ -53,8 +53,8 @@ const ListItem = ({ company, jobname, location, image, onPress }) => {
 
 const SearchPage = () => {
 	const [jobs, setJobs] = useState([]);
-	const [activeJobType, setActiveJobType] = useState("Full time");
-	const [selectedJob, setSelectedJob] = useState(jobName[0]);
+	const [activeJobType, setActiveJobType] = useState("");
+	const [selectedJob, setSelectedJob] = useState("");
 	const onJobChange = (itemValue, itemIndex) => {
 		setSelectedJob(itemValue);
 	};
@@ -62,6 +62,11 @@ const SearchPage = () => {
 	const [selectedLocation, setSelectedLocation] = useState("");
 	const onLocationChange = (itemValue, itemIndex) => {
 		setSelectedLocation(itemValue);
+	};
+
+	const [selectedSalary, setSelectedSalary] = useState("");
+	const onSalaryChange = (itemValue, itemIndex) => {
+		setSelectedSalary(itemValue);
 	};
 
 	const navigation = useNavigation();
@@ -91,18 +96,20 @@ const SearchPage = () => {
 			}));
 
 			// Convert the search term to lower case for case-insensitive comparison
-			const lowerCaseJobType = activeJobType.toLowerCase();
-			const lowerCaseSeletedJob = selectedJob.toLowerCase();
-			const lowerCaseSelectedLocation = selectedLocation.toLowerCase();
+			const lowerCaseJobType = activeJobType ? activeJobType.toLowerCase() : '';
+        	const lowerCaseSelectedJob = selectedJob ? selectedJob.toLowerCase() : '';
+        	const lowerCaseSelectedLocation = selectedLocation ? selectedLocation.toLowerCase() : '';
 
 			// Filter the jobs to include those where the search term matches any attribute
 			const filteredJobs = jobsList.filter((job) => {
-				const { job_type, job_name, company_name, location } = job;
-				return (
-					job_type.toLowerCase().includes(lowerCaseJobType) &&
-					job_name.toLowerCase().includes(lowerCaseSeletedJob) &&
-					location.toLowerCase().includes(lowerCaseSelectedLocation)
-				);
+				const { job_type, job_name, salary_level, location } = job;
+
+				const jobTypeMatch = lowerCaseJobType ? job_type.toLowerCase().includes(lowerCaseJobType) : true;
+            	const jobNameMatch = lowerCaseSelectedJob ? job_name.toLowerCase().includes(lowerCaseSelectedJob) : true;
+            	const locationMatch = lowerCaseSelectedLocation ? location.toLowerCase().includes(lowerCaseSelectedLocation) : true;
+				const salaryMatch = selectedSalary ? salary_level.includes(selectedSalary) : true;
+            	
+				return jobTypeMatch && jobNameMatch && locationMatch && salaryMatch;
 			});
 
 			setJobs(filteredJobs);
@@ -212,6 +219,7 @@ const SearchPage = () => {
 											style={styles.picker}
 											onValueChange={onJobChange}
 										>
+											<Picker.Item label="Choose job" value="" />
 											{jobName.map((job, index) => (
 												<Picker.Item
 													label={job}
@@ -244,6 +252,7 @@ const SearchPage = () => {
 											selectedValue={selectedLocation}
 											onValueChange={onLocationChange}
 										>
+											<Picker.Item label="Choose location" value="" />
 											<Picker.Item
 												label="Da Nang"
 												value="Da Nang"
@@ -291,19 +300,32 @@ const SearchPage = () => {
 										}}
 									>
 										<Picker
-											selectedValue={selectedJob}
-											onValueChange={(
-												itemValue,
-												itemIndex
-											) => setSelectedJob(itemValue)}
+											selectedValue={selectedSalary}
+											onValueChange={onSalaryChange}
 										>
 											<Picker.Item
-												label="100$ - 500$"
-												value="100$ - 500$"
+												label="Choose salary"
+												value=""
 											/>
 											<Picker.Item
-												label="500$ - 1000$"
-												value="500$ - 1000$"
+												label="Less than 200$"
+												value="Less than 200$"
+											/>
+											<Picker.Item
+												label="200$ - 500$"
+												value="200$ - 500$"
+											/>
+											<Picker.Item
+												label="500$ - 800$"
+												value="500$ - 800$"
+											/>
+											<Picker.Item
+												label="800$ - 1000$"
+												value="800$ - 1000$"
+											/>
+											<Picker.Item
+												label="More than 1000$"
+												value="More than 1000$"
 											/>
 										</Picker>
 									</View>

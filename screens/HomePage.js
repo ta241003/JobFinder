@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { firebase } from "../configFirebase";
 import { db } from "../configFirebase"; 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Feather } from '@expo/vector-icons';
 
 const jobTypes = ["Full time", "Part time"];
 
@@ -33,7 +34,7 @@ const Nearby_Job = ({ company, onPress }) => {
 	);
 };
 
-const Popular_Job = ({ item, onPress }) => {
+const Recommended_Job = ({ item, onPress }) => {
 
 	return (
 		<TouchableOpacity onPress={onPress} style={styles.companyCard}>
@@ -49,9 +50,9 @@ const Popular_Job = ({ item, onPress }) => {
 					<Text style={styles.jobDescription}>{item.location}</Text>
 				</View>
 			</View>
-			<AntDesign
-				name="hearto"
-				size={24}
+			<Feather
+				name="info"
+				size={25}
 				color="black"
 				style={styles.heartIcon}
 			/>
@@ -80,6 +81,7 @@ const HomePage = ({navigation }) => {
 	const [avatarUrl, setAvatarUrl] = useState("");
 	const [popularjobs, setPopularJobs] = useState([]);
 	const [nearbyjobs, setNearbyJobs] = useState([]);
+	const [recommendjobs, setRecommendJobs] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 
 
@@ -125,6 +127,49 @@ const HomePage = ({navigation }) => {
 		};
 
 		fetchUserData();
+
+		const getJobsMatchingUserExperiences = async() => {
+			try {
+                // Lấy tất cả người dùng từ Firestore
+                const userId = firebase.auth().currentUser.uid;
+                const userDoc = await firebase.firestore().collection("users").doc(userId).get();
+                const allUsers = userDoc.data();
+            
+                // Tạo một Set để lưu trữ tất cả jobName từ experiences của người dùng
+                const jobNamesSet = new Set();
+
+                allUsers.experiences.forEach(exp => {
+                    jobNamesSet.add(exp.jobName.toLowerCase());
+                })
+
+              
+                // Chuyển đổi Set thành Array để sử dụng trong truy vấn Firestore
+			    const jobNamesArray = Array.from(jobNamesSet);
+		  
+			    // Lấy tất cả các jobs từ Firestore
+			    const jobsSnapshot = await firebase.firestore().collection('jobs').get();
+			    const allJobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+			    // Lọc các job có job_name nằm trong jobNamesArray
+			    const matchingJobs = allJobs.filter(job => 
+				  jobNamesArray.some(jobName => job.job_name.toLowerCase().includes(jobName))
+			    );
+				console.log(matchingJobs.size);
+
+				if(matchingJobs.length > 0){
+                    setRecommendJobs(matchingJobs.slice(0, 4));
+                }
+                else{
+                    allJobs.sort((a, b) => b.salary - a.salary);
+                    setRecommendJobs(allJobs.slice(0, 4));
+                }
+			  
+			} catch (error) {
+			  console.error("Error getting jobs: ", error);
+			}
+		}
+		getJobsMatchingUserExperiences();
+
 	}, []);
 	
 	return (
@@ -202,12 +247,12 @@ const HomePage = ({navigation }) => {
 
 		<View style={styles.row}>
 			<View style={styles.subrow}>
-				<Text style={styles.boldText}>Popular Jobs</Text>
+				<Text style={styles.boldText}>Recommended for you</Text>
 				<TouchableOpacity>
 					<Text
 						style={styles.showAll}
 						onPress={() =>
-							navigation.navigate("ShowAllPopularJob")
+							navigation.navigate("ShowRecommendJobs")
 						}
 					>
 						Show all
@@ -221,20 +266,45 @@ const HomePage = ({navigation }) => {
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={styles.companyList}
 				>
-					{popularjobs.map((company) => (
+					{recommendjobs.map((company) => (
 						<View
 							key={company.id}
 							style={styles.companyCardContainer}
 						>
-							<Popular_Job
+							<Recommended_Job
 								item={company}
 								onPress={() =>
-									navigation.navigate("DescribeJob", {company,})
+									navigation.navigate("DescribeJob", {company})
 								}
 							/>
 						</View>
 					))}
 				</ScrollView>
+			</View>
+
+			<View style={styles.subrow}>
+				<Text style={styles.boldText}>Popular Jobs</Text>
+				<TouchableOpacity>
+					<Text
+						style={styles.showAll}
+						onPress={() =>
+							navigation.navigate("ShowAllPopularJob")
+						}
+					>
+						Show all
+					</Text>
+				</TouchableOpacity>
+			</View>
+			<View>
+				{popularjobs.map((company) => (
+					<Nearby_Job
+						key={company.id}
+						company={company}
+						onPress={() =>
+							navigation.navigate("DescribeJob", { company })
+						}
+					/>
+				))}
 			</View>
 
 			<View style={styles.subrow}>
