@@ -31,6 +31,7 @@ import ConfirmPassword from "./ConfirmPassword";
 import ShowAllPopularJob from "./ShowAllPopularJob";
 import ShowAllNearbyJob from "./ShowAllNearbyJob";
 import SearchResultFromHomePage from "./SearchResultFromHomePage";
+import ShowRecommendJobs from "./ShowRecommendJobs";
 
 enableScreens();
 
@@ -76,6 +77,7 @@ const HomeStack = () => (
 		<Stack.Screen name="UploadCVSuccess" component={UploadCVSuccess} />
 		<Stack.Screen name="ShowAllPopularJob" component={ShowAllPopularJob} />
 		<Stack.Screen name="ShowAllNearbyJob" component={ShowAllNearbyJob} />
+		<Stack.Screen name="ShowRecommendJobs" component={ShowRecommendJobs} />
 	</Stack.Navigator>
 );
 

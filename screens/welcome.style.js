@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
 	heartIcon: {
 		position: "absolute",
 		top: 15,
-		right: 20,
+		right: 10,
 		color: "#ff7754",
 	},
 	tab: (activeJobType, item) => ({
