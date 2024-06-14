@@ -3,7 +3,6 @@ import {
 	Image,
 	StyleSheet,
 	Text,
-	TextInput,
 	TouchableOpacity,
 	View,
 	ScrollView,
@@ -13,13 +12,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, SIZES, icons } from "../constants";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from "react-native-dropdown-picker";
 import BackButton from "../buttons/BackButton";
+import { useNavigation } from "@react-navigation/native";
 import { firebase } from "../configFirebase";
 
 const windowHeight = Dimensions.get("window").height;
@@ -55,19 +53,13 @@ const SearchPage = () => {
 	const [jobs, setJobs] = useState([]);
 	const [activeJobType, setActiveJobType] = useState("");
 	const [selectedJob, setSelectedJob] = useState("");
-	const onJobChange = (itemValue, itemIndex) => {
-		setSelectedJob(itemValue);
-	};
-
 	const [selectedLocation, setSelectedLocation] = useState("");
-	const onLocationChange = (itemValue, itemIndex) => {
-		setSelectedLocation(itemValue);
-	};
-
 	const [selectedSalary, setSelectedSalary] = useState("");
-	const onSalaryChange = (itemValue, itemIndex) => {
-		setSelectedSalary(itemValue);
-	};
+
+	const [showFilter, setShowFilter] = useState(false);
+	const [openJob, setOpenJob] = useState(false);
+	const [openLocation, setOpenLocation] = useState(false);
+	const [openSalary, setOpenSalary] = useState(false);
 
 	const navigation = useNavigation();
 
@@ -77,8 +69,6 @@ const SearchPage = () => {
 			routes: [{ name: "Home" }],
 		});
 	};
-
-	const [showFilter, setShowFilter] = useState(false);
 
 	const toggleFilter = () => {
 		setShowFilter(!showFilter);
@@ -95,21 +85,35 @@ const SearchPage = () => {
 				...doc.data(),
 			}));
 
-			// Convert the search term to lower case for case-insensitive comparison
-			const lowerCaseJobType = activeJobType ? activeJobType.toLowerCase() : '';
-        	const lowerCaseSelectedJob = selectedJob ? selectedJob.toLowerCase() : '';
-        	const lowerCaseSelectedLocation = selectedLocation ? selectedLocation.toLowerCase() : '';
+			const lowerCaseJobType = activeJobType
+				? activeJobType.toLowerCase()
+				: "";
+			const lowerCaseSelectedJob = selectedJob
+				? selectedJob.toLowerCase()
+				: "";
+			const lowerCaseSelectedLocation = selectedLocation
+				? selectedLocation.toLowerCase()
+				: "";
 
-			// Filter the jobs to include those where the search term matches any attribute
 			const filteredJobs = jobsList.filter((job) => {
 				const { job_type, job_name, salary_level, location } = job;
 
-				const jobTypeMatch = lowerCaseJobType ? job_type.toLowerCase().includes(lowerCaseJobType) : true;
-            	const jobNameMatch = lowerCaseSelectedJob ? job_name.toLowerCase().includes(lowerCaseSelectedJob) : true;
-            	const locationMatch = lowerCaseSelectedLocation ? location.toLowerCase().includes(lowerCaseSelectedLocation) : true;
-				const salaryMatch = selectedSalary ? salary_level.includes(selectedSalary) : true;
-            	
-				return jobTypeMatch && jobNameMatch && locationMatch && salaryMatch;
+				const jobTypeMatch = lowerCaseJobType
+					? job_type.toLowerCase().includes(lowerCaseJobType)
+					: true;
+				const jobNameMatch = lowerCaseSelectedJob
+					? job_name.toLowerCase().includes(lowerCaseSelectedJob)
+					: true;
+				const locationMatch = lowerCaseSelectedLocation
+					? location.toLowerCase().includes(lowerCaseSelectedLocation)
+					: true;
+				const salaryMatch = selectedSalary
+					? salary_level.includes(selectedSalary)
+					: true;
+
+				return (
+					jobTypeMatch && jobNameMatch && locationMatch && salaryMatch
+				);
 			});
 
 			setJobs(filteredJobs);
@@ -119,8 +123,8 @@ const SearchPage = () => {
 	};
 
 	const applyFilters = () => {
-		toggleFilter(); // Ẩn modal
-		searchFilter_job(); // Áp dụng bộ lọc
+		toggleFilter();
+		searchFilter_job();
 	};
 
 	return (
@@ -165,7 +169,7 @@ const SearchPage = () => {
 						<View style={styles.centeredView}>
 							<View style={styles.modalBackground}></View>
 							<View style={styles.modalView}>
-								<View style={{}}>
+								<View>
 									<TouchableOpacity
 										onPress={toggleFilter}
 										style={{
@@ -207,27 +211,26 @@ const SearchPage = () => {
 										Job
 									</Text>
 									<View
-										style={{
-											backgroundColor: "#f5f5f5",
-											height: 54,
-											borderColor: COLORS.hidetitle,
-											marginTop: 10,
-										}}
+										style={[
+											styles.dropdownContainer,
+											{ zIndex: 1000 },
+										]}
 									>
-										<Picker
-											selectedValue={selectedJob}
-											style={styles.picker}
-											onValueChange={onJobChange}
-										>
-											<Picker.Item label="Choose job" value="" />
-											{jobName.map((job, index) => (
-												<Picker.Item
-													label={job}
-													value={job}
-													key={index}
-												/>
-											))}
-										</Picker>
+										<DropDownPicker
+											open={openJob}
+											value={selectedJob}
+											items={jobName.map((job) => ({
+												label: job,
+												value: job,
+											}))}
+											setOpen={setOpenJob}
+											setValue={setSelectedJob}
+											placeholder="Choose job"
+											style={styles.dropdown}
+											dropDownContainerStyle={
+												styles.dropdown
+											}
+										/>
 									</View>
 								</View>
 								<View>
@@ -241,93 +244,37 @@ const SearchPage = () => {
 										Location
 									</Text>
 									<View
-										style={{
-											backgroundColor: "#f5f5f5",
-											height: 54,
-											borderColor: COLORS.hidetitle,
-											marginTop: 10,
-										}}
+										style={[
+											styles.dropdownContainer,
+											{ zIndex: 999 },
+										]}
 									>
-										<Picker
-											selectedValue={selectedLocation}
-											onValueChange={onLocationChange}
-										>
-											<Picker.Item label="Choose location" value="" />
-											<Picker.Item
-												label="Da Nang"
-												value="Da Nang"
-											/>
-											<Picker.Item
-												label="Hue"
-												value="Hue"
-											/>
-											<Picker.Item
-												label="Ha Noi"
-												value="Ha Noi"
-											/>
-											<Picker.Item
-												label="Ho Chi Minh"
-												value="Ho Chi Minh"
-											/>
-										</Picker>
-									</View>
-								</View>
-								<View
-									style={{
-										flexDirection: "row",
-										justifyContent: "space-between",
-										marginTop: 30,
-									}}
-								>
-									<View>
-										<Text
-											style={{
-												fontSize: 20,
-												fontWeight: "bold",
-												marginTop: 20,
-											}}
-										>
-											Salary
-										</Text>
-									</View>
-									<View
-										style={{
-											backgroundColor: "#f5f5f5",
-											width: "70%",
-											height: 54,
-											borderColor: COLORS.hidetitle,
-											marginTop: 10,
-										}}
-									>
-										<Picker
-											selectedValue={selectedSalary}
-											onValueChange={onSalaryChange}
-										>
-											<Picker.Item
-												label="Choose salary"
-												value=""
-											/>
-											<Picker.Item
-												label="Less than 200$"
-												value="Less than 200$"
-											/>
-											<Picker.Item
-												label="200$ - 500$"
-												value="200$ - 500$"
-											/>
-											<Picker.Item
-												label="500$ - 800$"
-												value="500$ - 800$"
-											/>
-											<Picker.Item
-												label="800$ - 1000$"
-												value="800$ - 1000$"
-											/>
-											<Picker.Item
-												label="More than 1000$"
-												value="More than 1000$"
-											/>
-										</Picker>
+										<DropDownPicker
+											open={openLocation}
+											value={selectedLocation}
+											items={[
+												{
+													label: "Da Nang",
+													value: "Da Nang",
+												},
+												{ label: "Hue", value: "Hue" },
+												{
+													label: "Ha Noi",
+													value: "Ha Noi",
+												},
+												{
+													label: "Ho Chi Minh",
+													value: "Ho Chi Minh",
+												},
+											]}
+											setOpen={setOpenLocation}
+											setValue={setSelectedLocation}
+											placeholder="Choose location"
+											style={styles.dropdown}
+											dropDownContainerStyle={
+												styles.dropdown
+											}
+										/>
 									</View>
 								</View>
 								<View>
@@ -335,8 +282,56 @@ const SearchPage = () => {
 										style={{
 											fontSize: 20,
 											fontWeight: "bold",
-											marginTop: 30,
-											marginBottom: 15,
+											marginTop: 20,
+										}}
+									>
+										Salary
+									</Text>
+								</View>
+								<View
+									style={[
+										styles.dropdownContainer,
+										{ zIndex: 998 },
+									]}
+								>
+									<DropDownPicker
+										open={openSalary}
+										value={selectedSalary}
+										items={[
+											{
+												label: "Less than 200$",
+												value: "Less than 200$",
+											},
+											{
+												label: "200$ - 500$",
+												value: "200$ - 500$",
+											},
+											{
+												label: "500$ - 800$",
+												value: "500$ - 800$",
+											},
+											{
+												label: "800$ - 1000$",
+												value: "800$ - 1000$",
+											},
+											{
+												label: "More than 1000$",
+												value: "More than 1000$",
+											},
+										]}
+										setOpen={setOpenSalary}
+										setValue={setSelectedSalary}
+										placeholder="Choose salary"
+										style={styles.dropdown}
+										dropDownContainerStyle={styles.dropdown}
+									/>
+								</View>
+								<View>
+									<Text
+										style={{
+											fontSize: 20,
+											fontWeight: "bold",
+											marginTop: 20,
 										}}
 									>
 										Job Type
@@ -352,7 +347,6 @@ const SearchPage = () => {
 													)}
 													onPress={() => {
 														setActiveJobType(item);
-														// router.push(`/search/${item}`);
 													}}
 												>
 													<Text
@@ -373,23 +367,9 @@ const SearchPage = () => {
 										/>
 									</View>
 								</View>
-								<View
-									style={{
-										marginTop: 50,
-										backgroundColor: "#ff7754",
-										height: 50,
-										justifyContent: "center",
-										alignItems: "center",
-										borderRadius: 20,
-									}}
-								>
+								<View style={styles.applyButtonContainer}>
 									<TouchableOpacity onPress={applyFilters}>
-										<Text
-											style={{
-												color: "#fff",
-												fontSize: 20,
-											}}
-										>
+										<Text style={styles.applyButtonText}>
 											Apply Filters
 										</Text>
 									</TouchableOpacity>
@@ -446,13 +426,6 @@ const styles = StyleSheet.create({
 		borderRadius: SIZES.medium,
 		height: "100%",
 		backgroundColor: "#E6E4E6",
-	},
-	searchInput: {
-		// fontFamily: FONT.regular,
-		width: "100%",
-		height: "100%",
-		paddingHorizontal: SIZES.medium,
-		fontSize: 18,
 	},
 	searchBtn: {
 		width: 50,
@@ -513,8 +486,6 @@ const styles = StyleSheet.create({
 	},
 	time: {
 		fontSize: 16,
-		// fontWeight: 'bold',
-		marginTop: 12,
 	},
 	centeredView: {
 		flex: 1,
@@ -537,6 +508,16 @@ const styles = StyleSheet.create({
 		width: "100%",
 		height: windowHeight * 0.85,
 	},
+	dropdownContainer: {
+		backgroundColor: "#f5f5f5",
+		height: 54,
+		borderColor: COLORS.hidetitle,
+		marginTop: 10,
+	},
+	dropdown: {
+		backgroundColor: "#f5f5f5",
+		borderColor: COLORS.hidetitle,
+	},
 	tab: (activeJobType, item) => ({
 		paddingVertical: SIZES.small / 2,
 		paddingHorizontal: SIZES.small,
@@ -545,7 +526,21 @@ const styles = StyleSheet.create({
 		borderColor: activeJobType === item ? COLORS.secondary : COLORS.gray2,
 	}),
 	tabText: (activeJobType, item) => ({
-		// fontFamily: FONT.medium,
 		color: activeJobType === item ? COLORS.secondary : COLORS.gray2,
 	}),
+	tabsContainer: {
+		marginTop: 10,
+	},
+	applyButtonContainer: {
+		marginTop: 50,
+		backgroundColor: "#ff7754",
+		height: 50,
+		justifyContent: "center",
+		alignItems: "center",
+		borderRadius: 20,
+	},
+	applyButtonText: {
+		color: "#fff",
+		fontSize: 20,
+	},
 });

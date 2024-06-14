@@ -72,7 +72,7 @@ const UploadCV = ({ navigation, route }) => {
 			setIsAvailable(isMailAvailable);
 		}
 		checkAvailability();
-		registerForPushNotificationsAsync();
+
 		fetchNotifyOption();
 
 		notificationListener.current =
@@ -96,37 +96,6 @@ const UploadCV = ({ navigation, route }) => {
 			);
 		};
 	}, []);
-
-	const registerForPushNotificationsAsync = async () => {
-		let token;
-		// if (Platform.OS === "android") {
-		// 	await Notifications.setNotificationChannelAsync("default", {
-		// 		name: "default",
-		// 		importance: Notifications.AndroidImportance.MAX,
-		// 		vibrationPattern: [0, 250, 250, 250],
-		// 		lightColor: "#FF231F7C",
-		// 	});
-		// }
-
-		const { status } = await Notifications.getPermissionsAsync();
-		let finalStatus = status;
-		if (finalStatus !== "granted") {
-			const { status } = await Notifications.requestPermissionsAsync();
-			finalStatus = status;
-		}
-		if (finalStatus !== "granted") {
-			alert("Failed to get push token for push notification!");
-			return;
-		}
-		token = (
-			await Notifications.getExpoPushTokenAsync({
-				projectId: "a47e6bfa-1e2b-4f4b-acca-143ea8879c9d",
-			})
-		).data;
-
-		console.log(token);
-		return token;
-	};
 
 	const handleDocumentSelection = async () => {
 		try {
